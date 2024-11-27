@@ -10,6 +10,7 @@ board = ab.board
 # https://papersizes.online/paper-size/letter/
 #
 # "Letter size in pixels when using 600 DPI: 6600 x 5100 pixels."
+# "A4 size in pixels when using 600 DPI: 7,016 x 4,960 pixels."
 ########
 
 ########
@@ -23,7 +24,7 @@ board = ab.board
 # borderBits	width of the marker borders.
 ########
 
-image_size = (5100, 6600)
+image_size = (4960, 7016)
 margin_size = int(image_size[1]/20)
 border_bits = 1
 

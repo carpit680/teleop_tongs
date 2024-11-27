@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="giraffe">
+    <link name="gripper">
+        <inertial>
+            <origin xyz="-0.000534550731031771 -0.025763829867532968 -0.018419186131909165" rpy="0.0 -1.9976450906674253e-29 0.0" />
+            <mass value="0.12794799500230522" />
+            <inertia ixx="4.290913391222993e-05" iyy="2.1280428288000923e-05" izz="2.683932224763466e-05" ixy="-2.725210799664418e-06" iyz="3.527027915277126e-07" ixz="6.634367871067188e-08" />
+        </inertial>
+        <visual name="gripper_visual">
+            <origin xyz="0.031694944604149684 0.0002709797921150781 -0.285410727896799" rpy="1.5707552278236874 0.0015176699920385686 -3.133413459800098" />
+            <geometry>
+                <mesh filename="meshes/gripper.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="gripper_collision">
+            <origin xyz="0.031694944604149684 0.0002709797921150781 -0.285410727896799" rpy="1.5707552278236874 0.0015176699920385686 -3.133413459800098" />
+            <geometry>
+                <mesh filename="meshes/gripper.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="wrist_2">
+        <inertial>
+            <origin xyz="0.0011058632318213947 0.0005505882095462411 0.022358256108671436" rpy="0.0 1.734723475976807e-18 0.0" />
+            <mass value="0.20479740953235445" />
+            <inertia ixx="9.160880911863678e-05" iyy="0.00010474421337913234" izz="5.8043757253412936e-05" ixy="-1.2542381281927335e-07" iyz="-4.7381100431851416e-07" ixz="2.104467272487667e-05" />
+        </inertial>
+        <visual name="wrist_2_visual">
+            <origin xyz="0.021048749735739055 -0.22043051570238892 0.022995396569923495" rpy="-3.1415802433428786 -8.11920530686276e-08 -3.1400753958954972" />
+            <geometry>
+                <mesh filename="meshes/wrist_2.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="wrist_2_collision">
+            <origin xyz="0.021048749735739055 -0.22043051570238892 0.022995396569923495" rpy="-3.1415802433428786 -8.11920530686276e-08 -3.1400753958954972" />
+            <geometry>
+                <mesh filename="meshes/wrist_2.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="wrist_1">
+        <inertial>
+            <origin xyz="-0.000287284769048064 0.02678362328728344 0.019533986884942536" rpy="0.0 -1.149868115533842e-23 -2.584939414228212e-26" />
+            <mass value="0.11585466541730398" />
+            <inertia ixx="7.006551337852666e-05" iyy="4.042464159494787e-05" izz="4.0911216983833104e-05" ixy="1.5473492014512143e-07" iyz="8.829612887055519e-06" ixz="-1.2277160396194834e-07" />
+        </inertial>
+        <visual name="wrist_1_visual">
+            <origin xyz="-0.010069919259929599 0.07572075335252758 0.02738406912887574" rpy="1.5707963267521312 -1.5700376725697784 2.0604717204386875e-10" />
+            <geometry>
+                <mesh filename="meshes/wrist_1.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="wrist_1_collision">
+            <origin xyz="-0.010069919259929599 0.07572075335252758 0.02738406912887574" rpy="1.5707963267521312 -1.5700376725697784 2.0604717204386875e-10" />
+            <geometry>
+                <mesh filename="meshes/wrist_1.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="elbow">
+        <inertial>
+            <origin xyz="-0.06237797260022568 -0.001947842007227756 -0.019109899420405998" rpy="0.0 -1.176607055874197e-23 0.0" />
+            <mass value="0.3407348467366932" />
+            <inertia ixx="9.627918387526699e-05" iyy="0.0004424692816523694" izz="0.00041728906882792496" ixy="-2.5858388667072467e-06" iyz="6.352536837440874e-08" ixz="-7.563312832817133e-06" />
+        </inertial>
+        <visual name="elbow_visual">
+            <origin xyz="-0.009868027760956456 0.008291687481122665 -0.018575305984022655" rpy="1.570796327001642 1.5707963267947398 0" />
+            <geometry>
+                <mesh filename="meshes/elbow.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="elbow_collision">
+            <origin xyz="-0.009868027760956456 0.008291687481122665 -0.018575305984022655" rpy="1.570796327001642 1.5707963267947398 0" />
+            <geometry>
+                <mesh filename="meshes/elbow.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="shoulder_lift">
+        <inertial>
+            <origin xyz="0.0024587901815807454 0.06764007255467121 -0.018401845002320113" rpy="0.0 -1.0838778988512815e-19 0.0" />
+            <mass value="0.34405090664671173" />
+            <inertia ixx="0.00048660678159252675" iyy="8.608339341554467e-05" izz="0.00046879407552050063" ixy="1.449542958935924e-05" iyz="8.758750825419372e-06" ixz="-1.1483114916756066e-06" />
+        </inertial>
+        <visual name="shoulder_lift_visual">
+            <origin xyz="0.11659411366854026 0.046636713177737564 -0.013526461847940699" rpy="1.5707963267942835 1.570037672569763 -3.1415926535897922" />
+            <geometry>
+                <mesh filename="meshes/shoulder_lift.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="shoulder_lift_collision">
+            <origin xyz="0.11659411366854026 0.046636713177737564 -0.013526461847940699" rpy="1.5707963267942835 1.570037672569763 -3.1415926535897922" />
+            <geometry>
+                <mesh filename="meshes/shoulder_lift.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="shoulder_pan">
+        <inertial>
+            <origin xyz="-0.00017947215105536618 0.018989018317661265 -0.005711008429640039" rpy="0.0 -0.0 2.348871518565641e-48" />
+            <mass value="0.2502336197461597" />
+            <inertia ixx="0.00016812578804247316" iyy="0.00012637111682453145" izz="8.32094860134095e-05" ixy="-3.813725159925398e-08" iyz="2.0065350934852638e-05" ixz="5.9404757110408e-07" />
+        </inertial>
+        <visual name="shoulder_pan_visual">
+            <origin xyz="-0.005930838705377115 -0.09115887303880864 0.06458670903944898" rpy="-1.9645711750814614e-15 1.5684737331515381e-13 0.0007586542251338105" />
+            <geometry>
+                <mesh filename="meshes/shoulder_pan.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="shoulder_pan_collision">
+            <origin xyz="-0.005930838705377115 -0.09115887303880864 0.06458670903944898" rpy="-1.9645711750814614e-15 1.5684737331515381e-13 0.0007586542251338105" />
+            <geometry>
+                <mesh filename="meshes/shoulder_pan.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="base_link">
+        <inertial>
+            <origin xyz="-0.007511517617372692 -0.23103305434027177 -0.0917692441488011" rpy="0.0 0.0 0.0" />
+            <mass value="0.812217234610215" />
+            <inertia ixx="0.0008345419619253186" iyy="0.00040100752698595427" izz="0.0009101681657248211" ixy="-6.247334688454271e-07" iyz="-8.116592715424724e-05" ixz="-3.2224335730769796e-07" />
+        </inertial>
+        <visual name="base_link_visual">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <geometry>
+                <mesh filename="meshes/base_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </visual>
+        <collision name="base_link_collision">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <geometry>
+                <mesh filename="meshes/base_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="base_link_shoulder_pan_joint" type="revolute">
+        <origin xyz="-0.007481813113703827 -0.18092165633421572 -0.051176553314811093" rpy="1.3902260885354034e-15 1.2005791989029008e-16 -0.0007586542251338113" />
+        <parent link="base_link" />
+        <child link="shoulder_pan" />
+        <axis xyz="-2.465190328815662e-32 7.92896871208326e-16 1.0" />
+        <limit lower="-1.832596" upper="1.832596" effort="1000000" velocity="1000000" />
+    </joint>
+    <joint name="shoulder_pan_shoulder_lift_joint" type="revolute">
+        <origin xyz="-0.01894466000000003 0.02571941000000001 0.01737606999999998" rpy="1.5707963267950535 -2.0674523217214331e-10 -1.5715549810200329" />
+        <parent link="shoulder_pan" />
+        <child link="shoulder_lift" />
+        <axis xyz="0.000758654152361514 -3.814002872675493e-38 0.9999997122218974" />
+        <limit lower="-0.785398" upper="1.644158" effort="1000000" velocity="1000000" />
+    </joint>
+    <joint name="shoulder_lift_elbow_joint" type="revolute">
+        <origin xyz="-0.025196435278486345 0.10949146000520331 -0.037893485524666634" rpy="3.1415926535895418 2.2650067565861562e-14 -3.312801036946675e-10" />
+        <parent link="shoulder_lift" />
+        <child link="elbow" />
+        <axis xyz="3.456292375562768e-07 -9.452259649568135e-14 1.0000002880403989" />
+        <limit lower="-1.53589" upper="1.745329" effort="1000000" velocity="1000000" />
+    </joint>
+    <joint name="elbow_wrist_1_joint" type="revolute">
+        <origin xyz="-0.12026017684124206 -0.002215789985019754 -0.037616306707671" rpy="1.878793372233325e-13 2.512616851854867e-14 -2.476481313343611e-10" />
+        <parent link="elbow" />
+        <child link="wrist_1" />
+        <axis xyz="-0.0007583461697307804 -1.8676166605626716e-13 -0.9999998631005341" />
+        <limit lower="-3.368485" upper="0.261799" effort="1000000" velocity="1000000" />
+    </joint>
+    <joint name="wrist_1_wrist_2_joint" type="revolute">
+        <origin xyz="-0.00017835491299077687 0.06033854999998056 0.027120202494905085" rpy="-3.049102007927164 1.5625820319968764 -1.4783560893203032" />
+        <parent link="wrist_1" />
+        <child link="wrist_2" />
+        <axis xyz="-1.3510287936481513e-07 1.2304131739319882e-05 1.0000004491016943" />
+        <limit lower="-3.141593" upper="3.141593" effort="1000000" velocity="1000000" />
+    </joint>
+    <joint name="wrist_2_gripper_joint" type="revolute">
+        <origin xyz="0.02541041108611911 0.01946328617934281 0.017249861388580517" rpy="-1.5708498378135036 -0.008179184380179302 0.0007586796016247197" />
+        <parent link="wrist_2" />
+        <child link="gripper" />
+        <axis xyz="-0.0015173474686189948 -5.3999999838870086e-05 0.9999984389196113" />
+        <limit lower="-0.174533" upper="1.570796" effort="1000000" velocity="1000000" />
+    </joint>
+</robot>

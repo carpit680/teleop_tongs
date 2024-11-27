@@ -7,7 +7,7 @@ import webcam as wc
 from image_processing_helpers import fit_image_to_screen
 
 
-camera_name = 'Logitech Webcam C930e'
+camera_name = 'Generic USB Camera'
 image_width = 1920
 image_height = 1080
 fps = 30

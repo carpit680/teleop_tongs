@@ -26,4 +26,4 @@
 # each time is a workaround for low frame rates and incorrect camera
 # settings after the first time dexterous teleop is run.
 
-ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="0843", MODE="660", GROUP="plugdev"
+ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="05c8", ATTRS{idProduct}=="03eb", MODE="660", GROUP="plugdev"
