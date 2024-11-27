@@ -55,7 +55,7 @@ After cloning the repository, run the following installation script found in the
 ./install_dex_teleop.sh
 ```
 
-The installation script sets up a udev rule for a Logitech Webcam C930e, so that the camera can be reset each time you run dexterous teleoperation. This is a workaround to avoid low frame rates and errors in the camera settings.
+The installation script sets up a udev rule for a Mi USB Webcam HD, so that the camera can be reset each time you run dexterous teleoperation. This is a workaround to avoid low frame rates and errors in the camera settings.
 
 Next, the installation script installs v4l2 utilities, if necessary.
 
@@ -116,7 +116,7 @@ python3 webcam_calibration_collect_images.py
 The images will be stored in the following directory. 
 
 ```
-./webcam_calibration_images/Logitech Webcam C930e/1920x1080
+./webcam_calibration_images/Mi USB Webcam HD/1920x1080
 ```
 
 Once you've collected the calibration images, run the following command to process the images. 
@@ -128,7 +128,7 @@ python3 webcam_calibration_process_images.py
 Processing the images will generate a YAML calibration file similar to the following file.
 
 ```
-./webcam_calibration_images/Logitech Webcam C930e/1920x1080/camera_calibration_results_20231211211703.yaml
+./webcam_calibration_images/Mi USB Webcam HD/1920x1080/camera_calibration_results_20231211211703.yaml
 ```
 
 ### Test the Camera

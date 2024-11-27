@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Copy udev rule file for the Logitech Webcam C930e."
+echo "Copy udev rule file for the Mi USB Webcam HD."
 echo "sudo cp ./99-hello-dex-teleop-camera.rules /etc/udev/rules.d/"
 sudo cp ./99-hello-dex-teleop-camera.rules /etc/udev/rules.d/
 echo ""
@@ -19,6 +19,6 @@ echo "Next, you need to generate specialized URDF files and calibrate your Logit
 echo "You can find instructions in the README.md file."
 echo ""
 echo "***********************************************************"
-echo "IMPORTANT: After this installation finishes, you should unplug and then replug your Logitech Webcam C930e, if it's already plugged in."
+echo "IMPORTANT: After this installation finishes, you should unplug and then replug your Mi USB Webcam HD, if it's already plugged in."
 echo "***********************************************************"
 echo ""

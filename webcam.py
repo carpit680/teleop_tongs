@@ -44,7 +44,7 @@ def get_video_devices():
 
 class Webcam:
     def __init__(self,
-                 camera_name='Logitech Webcam C930e',
+                 camera_name='Mi USB Webcam HD',
                  fps=30,
                  image_width=1920,
                  image_height=1080,
@@ -102,7 +102,7 @@ class Webcam:
             self.color_camera_info['distortion_coefficients'] = np.array(camera_calibration['distortion_coefficients'])
 
         if self.use_logitech_c930:
-            # Reset the Logitech Webcam C930e to avoid a bug that
+            # Reset the Mi USB Webcam HD to avoid a bug that
             # results in ~5Hz frame rate and incorrect settings after
             # the first use of the camera.
 

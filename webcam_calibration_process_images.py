@@ -15,7 +15,7 @@ from image_processing_helpers import fit_image_to_screen
 aruco_dict = ab.aruco_dict
 aruco_board = ab.board
 
-camera_name = 'Generic USB Camera'
+camera_name = 'Mi USB Webcam HD'
 image_width = 1920
 image_height = 1080
 fps = 30

@@ -2,14 +2,14 @@ import stretch_body.robot as rb
 import numpy as np
 import math
 import time
-from functools import partial
+# from functools import partial
 from scipy.spatial.transform import Rotation
-from stretch_body.robot_params import RobotParams
+# from stretch_body.robot_params import RobotParams
 from hello_helpers import hello_misc as hm
 import urchin as urdf_loader
 import os
 import simple_ik as si
-import argparse
+# import argparse
 import loop_timer as lt
 import dex_teleop_parameters as dt
 from multiprocessing import shared_memory
