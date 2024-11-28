@@ -22,13 +22,13 @@ tongs_to_use = '56mm' #'50mm' #'44mm'
 
 if tongs_to_use == '56mm':
     # 50mm ArUco marker tongs
-    tongs_cube_side = 0.0735
-    tongs_pin_joint_to_marker_center = 0.112
-    tongs_pin_joint_to_tong_tip = 0.102
+    tongs_cube_side = 0.075
+    tongs_pin_joint_to_marker_center = 0.155
+    tongs_pin_joint_to_tong_tip = 0.1296
     #tongs_marker_center_to_tong_tip = (tongs_cube_side / 2.0) + 0.0125
-    tongs_marker_center_to_tong_tip = (tongs_cube_side / 2.0) + 0.0105
-    tongs_open_grip_width = 0.145
-    tongs_closed_grip_width = 0.088
+    tongs_marker_center_to_tong_tip = (tongs_cube_side / 2.0) + 0.0115
+    tongs_open_grip_width = 0.0653
+    tongs_closed_grip_width = 0.005
     
 
 # The maximum and minimum goal_wrist_position z values do not
@@ -36,8 +36,8 @@ if tongs_to_use == '56mm':
 # the SimpleIK based on the specialized URDF joint
 # limits. They are specified with respect to the robot's
 # coordinate system.
-goal_max_position_z = 1.35
-goal_min_position_z = 0.07
+goal_max_position_z = 0.43
+goal_min_position_z = 0.0
 
 
 # Regions at the top and bottom of the allowable tongs range
@@ -129,7 +129,7 @@ robot_allowed_to_move = True
 # the lift range are outside of this range.
 
 # Minimum distance from the tongs to the camera in meters
-min_dist_from_camera_to_tongs = 0.6 #0.5
+min_dist_from_camera_to_tongs = 0.3 #0.5
 # Maximum distance from the tongs to the camera in meters
 max_dist_from_camera_to_tongs = 1.0 #1.0
 
@@ -153,47 +153,30 @@ teleop_origin = np.array([teleop_origin_x, teleop_origin_y, teleop_origin_z])
 
 # Robot configuration used to define the center wrist position
 
-def get_lift_middle(manipulate_on_ground): 
-    # Additional joint limits for the lift beyond what the URDF
-    # specifies. A None value is ignored in favor of the URDF joint
-    # limits. These can only be more restrictive than the URDF joint
-    # limits.
-    if manipulate_on_ground:
-        lift_minimum = None
-        lift_maximum = max_tongs_height_range
-        lift_middle = max_tongs_height_range / 2.0
-    else:
-        lift_minimum = 1.09 - max_tongs_height_range
-        lift_maximum = None
-        lift_middle = lift_minimum + max_tongs_height_range/2.0
-    return lift_middle
 
-
-def get_center_configuration(lift_middle): 
+def get_center_configuration(): 
     # manipulate lower objects
     center_configuration = {
-        'joint_mobile_base_rotation': 0.0,
-        'joint_lift': lift_middle,
-        'joint_arm_l0': 0.01,
-        'joint_wrist_yaw': 0.0,
-        'joint_wrist_pitch': 0.0,
-        'joint_wrist_roll': 0.0
+        'base_link_shoulder_pan_joint': 0.0,
+        'shoulder_pan_shoulder_lift_joint': 0.0,
+        'shoulder_lift_elbow_joint': 0.0,
+        'elbow_wrist_1_joint': 0.0,
+        'wrist_1_wrist_2_joint': 0.0
     }
     return center_configuration
 
-def get_starting_configuration(lift_middle): 
+def get_starting_configuration(): 
 
     # The robot will attempt to achieve this configuration before
     # teleoperation begins. Teleoperation commands for the robot's
     # wrist position are made relative to the wrist position
     # associated with this starting configuration.
     starting_configuration = {
-        'joint_mobile_base_rotate_by': 0.0,
-        'joint_lift': lift_middle,
-        'joint_arm_l0': 0.01,
-        'joint_wrist_yaw': 0.9 * np.pi,
-        'joint_wrist_pitch': 0.0,
-        'joint_wrist_roll': 0.0
+        'base_link_shoulder_pan_joint': 0.0,
+        'shoulder_pan_shoulder_lift_joint': 0.0,
+        'shoulder_lift_elbow_joint': 0.0,
+        'elbow_wrist_1_joint': 0.0,
+        'wrist_1_wrist_2_joint': 0.0
     }
     return starting_configuration
 

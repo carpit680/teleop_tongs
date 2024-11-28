@@ -1,11 +1,12 @@
-import stretch_body.robot as rb
+import stretch_body.robot as rb # TODO: Fix this file
 import numpy as np
 import math
 import time
+import errno
 # from functools import partial
 from scipy.spatial.transform import Rotation
 # from stretch_body.robot_params import RobotParams
-from hello_helpers import hello_misc as hm
+from hello_helpers import hello_misc as hm # TODO: Check this file
 import urchin as urdf_loader
 import os
 import simple_ik as si
@@ -14,7 +15,7 @@ import loop_timer as lt
 import dex_teleop_parameters as dt
 from multiprocessing import shared_memory
 import pprint as pp
-import robot_move as rm
+import robot_move as rm # TODO: fix this file
 
 
 def load_urdf(file_name):
@@ -39,27 +40,34 @@ def nan_in_configuration(configuration):
                 
 
 class GripperToGoal:
-    def __init__(self, robot_speed, starting_configuration, robot_allowed_to_move, using_stretch_2):
-        if using_stretch_2:
-            self.grip_range = dt.dex_wrist_grip_range
-        else:
-            self.grip_range = dt.dex_wrist_3_grip_range
-            
-        self.using_stretch_2 = using_stretch_2
-                
-        self.joints_allowed_to_move = ['stretch_gripper', 'joint_arm_l0', 'joint_lift', 'joint_wrist_yaw', 'joint_wrist_pitch', 'joint_wrist_roll', 'joint_mobile_base_rotate_by']
+    def __init__(self, robot_speed, starting_configuration, robot_allowed_to_move):
+        self.grip_range = dt.dex_wrist_grip_range
+
+        self.joints_allowed_to_move = [
+            'base_link_shoulder_pan_joint',
+            'shoulder_pan_shoulder_lift_joint',
+            'shoulder_lift_elbow_joint',
+            'elbow_wrist_1_joint',
+            'wrist_1_wrist_2_joint'
+        ]
 
         # Get Wrist URDF joint limits
-        rotary_urdf_file_name = './stretch_base_rotation_ik_with_fixed_wrist.urdf'
-        rotary_urdf = load_urdf(rotary_urdf_file_name)
-        wrist_joints = ['joint_wrist_yaw', 'joint_wrist_pitch', 'joint_wrist_roll']
-        self.wrist_joint_limits = {}
-        for joint_name in wrist_joints: 
-            joint = rotary_urdf.joint_map.get(joint_name, None)
+        urdf_file_name = './giraffe.urdf'
+        urdf = load_urdf(urdf_file_name)
+        joints = [
+            'base_link_shoulder_pan_joint',
+            'shoulder_pan_shoulder_lift_joint',
+            'shoulder_lift_elbow_joint',
+            'elbow_wrist_1_joint',
+            'wrist_1_wrist_2_joint'
+        ]
+        self.joint_limits = {}
+        for joint_name in joints: 
+            joint = urdf.joint_map.get(joint_name, None)
             if joint is not None: 
                 lower = float(joint.limit.lower)
                 upper = float(joint.limit.upper)
-                self.wrist_joint_limits[joint.name] = (lower, upper)
+                self.joint_limits[joint.name] = (lower, upper)
 
         self.robot_allowed_to_move = robot_allowed_to_move
         self.drop_extreme_wrist_orientation_change = True
@@ -74,14 +82,14 @@ class GripperToGoal:
         # the robot. Simple exponential smoothing is used to filter wrist
         # position values coming from the interface objects.
         self.filtered_wrist_position_configuration = np.array([
-            starting_configuration['joint_mobile_base_rotate_by'],
-            starting_configuration['joint_lift'],
-            starting_configuration['joint_arm_l0']
+            starting_configuration['base_link_shoulder_pan_joint'],
+            starting_configuration['shoulder_pan_shoulder_lift_joint'],
+            starting_configuration['shoulder_lift_elbow_joint'],
+            starting_configuration['elbow_wrist_1_joint'],
+            starting_configuration['wrist_1_wrist_2_joint']
         ])
     
-        self.prev_commanded_wrist_orientation = {'joint_wrist_yaw':None,
-                                                 'joint_wrist_pitch':None,
-                                                 'joint_wrist_roll':None}
+        self.prev_commanded_wrist_orientation = {'base_link_shoulder_pan_joint': 0.0, 'shoulder_pan_shoulder_lift_joint': 0.0, 'shoulder_lift_elbow_joint': 0.0, 'elbow_wrist_1_joint': 0.0, 'wrist_1_wrist_2_joint': 0.0}
 
         
         # This is the weight multiplied by the current wrist angle command when performing exponential smoothing.
@@ -102,9 +110,9 @@ class GripperToGoal:
         self.robot = rb.Robot()
         self.robot.startup()
 
-        print('stretch_body file imported =', rb.__file__)
+        print('giraffe_body file imported =', rb.__file__)
         transport_version = self.robot.arm.motor.transport.version
-        print('stretch_body using transport version =', transport_version)
+        print('giraffe_body using transport version =', transport_version)
 
         self.robot_move = rm.RobotMove(self.robot, speed=robot_speed)
         self.robot_move.print_settings()
@@ -326,7 +334,6 @@ if __name__ == '__main__':
     use_fastest_mode = args.fast
     manipulate_on_ground = args.ground
     left_handed = args.left
-    using_stretch_2 = args.stretch_2
     use_multiprocessing = args.multiprocessing
 
     
@@ -343,19 +350,15 @@ if __name__ == '__main__':
     # WARNING: 'fastest_stretch_2' has velocities and accelerations that exceed
     # the factory 'max' values defined by Hello Robot.
     if use_fastest_mode:
-        if using_stretch_2:
-            robot_speed = 'fastest_stretch_2'
-        else: 
-            robot_speed = 'fastest_stretch_3'
+        robot_speed = 'fast'
     else:
         robot_speed = 'slow'
     print('running with robot_speed =', robot_speed)
 
-    lift_middle = dt.get_lift_middle(manipulate_on_ground)
-    center_configuration = dt.get_center_configuration(lift_middle)
-    starting_configuration = dt.get_starting_configuration(lift_middle)
+    center_configuration = dt.get_center_configuration()
+    starting_configuration = dt.get_starting_configuration()
     
-    gripper_to_goal = GripperToGoal(robot_speed, starting_configuration, robot_allowed_to_move, using_stretch_2)
+    gripper_to_goal = GripperToGoal(robot_speed, starting_configuration, robot_allowed_to_move)
     
     if use_multiprocessing:
         shm = shared_memory.SharedMemory(name=dt.shared_memory_name, create=False)

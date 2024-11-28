@@ -196,16 +196,13 @@ if __name__ == '__main__':
     # the factory 'max' values defined by Hello Robot.
     if use_fastest_mode:
         if using_stretch_2:
-            robot_speed = 'fastest_stretch_2'
-        else: 
-            robot_speed = 'fastest_stretch_3'
+            robot_speed = 'fast'
     else:
         robot_speed = 'slow'
     print('running with robot_speed =', robot_speed)
     
-    lift_middle = dt.get_lift_middle(manipulate_on_ground)
-    center_configuration = dt.get_center_configuration(lift_middle)
-    starting_configuration = dt.get_starting_configuration(lift_middle)
+    center_configuration = dt.get_center_configuration()
+    starting_configuration = dt.get_starting_configuration()
 
     if left_handed: 
         webcam_aruco_detector = wt.WebcamArucoDetector(tongs_prefix='left', visualize_detections=False)
