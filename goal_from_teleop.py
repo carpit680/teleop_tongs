@@ -22,31 +22,19 @@ class GoalFromMarkers:
         self.teleop_origin = teleop_origin
         self.initial_center_wrist_position = np.array(initial_center_wrist_position)
         self.center_wrist_position = self.initial_center_wrist_position.copy()
-        
-        # Regions at the top and bottom of the allowable tongs range
-        # are reserved for changing the range over which the lift is
-        # operating. This sliding region enables a user to use the
-        # lift's full range without restarting the code.
-        self.sliding_region_height = dt.lift_sliding_region_height
 
         # The tongs are ignored when they are outside of this range.
-        self.tongs_min_dist_from_camera = dt.min_dist_from_camera_to_tongs - self.sliding_region_height
-        self.tongs_max_dist_from_camera = dt.max_dist_from_camera_to_tongs + self.sliding_region_height
+        self.tongs_min_dist_from_camera = dt.min_dist_from_camera_to_tongs
+        self.tongs_max_dist_from_camera = dt.max_dist_from_camera_to_tongs
         
         print('GoalFromMarkers: self.tongs_min_dist_from_camera = {:.2f} cm'.format(self.tongs_min_dist_from_camera * 100.0))
         print('GoalFromMarkers: self.tongs_max_dist_from_camera = {:.2f} cm'.format(self.tongs_max_dist_from_camera * 100.0))
-        print('GoalFromMarkers: self.sliding_region_height = {:.2f} cm'.format(self.sliding_region_height * 100.0))
-        
 
-        # These values determine when the lift range should be slid up
-        # or down.
-        self.slide_lift_range_down = self.tongs_min_dist_from_camera + self.sliding_region_height
-        self.slide_lift_range_up = self.tongs_max_dist_from_camera - self.sliding_region_height
 
         # The tongs can be moved over a range of distances from the
         # camera to actively control the lift. This is the height of
         # this region when ignoring the lift's joint limits.
-        self.tongs_lift_range = self.slide_lift_range_up - self.slide_lift_range_down
+        self.tongs_lift_range = self.tongs_max_dist_from_camera - self.tongs_min_dist_from_camera
         print('GoalFromMarkers: self.tongs_lift_range = {:.2f} cm'.format(self.tongs_lift_range * 100.0))
 
         # The maximum and minimum goal_wrist_position z values do not
@@ -56,32 +44,52 @@ class GoalFromMarkers:
         # coordinate system.
         self.max_goal_wrist_position_z = dt.goal_max_position_z
         self.min_goal_wrist_position_z = dt.goal_min_position_z
-        
-        self.max_lift_range_offset = (((self.max_goal_wrist_position_z - self.center_wrist_position[2]) +
-                                       self.teleop_origin[2]) -
-                                      (self.tongs_max_dist_from_camera - self.sliding_region_height)
-                                      )
 
-        self.min_lift_range_offset = (((self.min_goal_wrist_position_z - self.center_wrist_position[2]) +
-                                       self.teleop_origin[2]) -
-                                      (self.tongs_min_dist_from_camera + self.sliding_region_height)
-                                      )
-        
-        print('self.min_lift_range_offset = {:.2f} cm'.format(self.min_lift_range_offset * 100.0))
-        print('self.max_lift_range_offset = {:.2f} cm'.format(self.max_lift_range_offset * 100.0))
-
-        # Initialized the offset.
-        self.lift_range_offset = 0.0
-
-        # Set how fast the lift will be translated when being slid.
-        self.lift_range_offset_change_per_timestep = dt.lift_range_offset_change_per_timestep
-
-        self.in_sliding_region = False
-
-        self.min_finger_width = dt.tongs_closed_grip_width
-        self.max_finger_width = dt.tongs_open_grip_width
+        self.min_finger_width = dt.tongs_closed_grip_width + dt.tongs_marker_center_to_tong_tip
+        self.max_finger_width = dt.tongs_open_grip_width + dt.tongs_marker_center_to_tong_tip
 
     def get_goal_dict(self, markers): 
+        # {
+        #     'right_tongs_left_bottom': {
+        #         'pos': array([0.0854964 , 0.05164764, 0.45221867]), 
+        #         'x_axis': array([ 0.99851254, -0.01160173, -0.0532739 ]), 
+        #         'y_axis': array([ 0.01083861, -0.91535996,  0.40249058]), 
+        #         'z_axis': array([-0.05343438, -0.4024693 , -0.91387265]), 
+        #         'min_dist_between_corners': 81.379684, 
+        #         'info': {
+        #             'length_mm': 56, 
+        #             'use_rgb_only': True, 
+        #             'name': 'right_tongs_left_bottom', 
+        #             'link': 'None', 'marker_id': 238
+        #         }
+        #     }, 
+        #     'right_tongs_right_bottom': 
+        #     {
+        #         'pos': array([-0.01001611,  0.05133483,  0.45517687]), 
+        #         'x_axis': array([ 0.99830905,  0.04227489, -0.03989841]), 
+        #         'y_axis': array([ 0.05464988, -0.91647145,  0.39635018]), 
+        #         'z_axis': array([-0.01981009, -0.39786041, -0.91723206]), 
+        #         'min_dist_between_corners': 81.42581, 
+        #         'info': {
+        #             'length_mm': 56, 
+        #             'use_rgb_only': True, 
+        #             'name': 'right_tongs_right_bottom', 
+        #             'link': 'None', 'marker_id': 239
+        #         }
+        #     }, 
+        #     'tongs': 
+        #     {
+        #         'name': 'tongs', 
+        #         'pos': array([0.03428771, 0.20160049, 0.42912809]), 
+        #         'x_axis': array([ 0.99879561,  0.01534249, -0.04660411]), 
+        #         'y_axis': array([ 0.03271391, -0.91616102,  0.39947314]), 
+        #         'z_axis': array([-0.03656795, -0.40051662, -0.91555951]), 
+        #         'info': {
+        #             'name': 'tongs', 
+        #             'grip_width': 0.09555881399309768
+        #         }
+        #     }
+        # }
 
         if markers:
             grip_pose_marker = markers.get(self.grip_pose_marker_name, None)
@@ -113,34 +121,10 @@ class GoalFromMarkers:
                 tongs_at_valid_distance_from_camera = ((dist_from_camera > self.tongs_min_dist_from_camera) and
                                                        (dist_from_camera < self.tongs_max_dist_from_camera))
 
-                if tongs_at_valid_distance_from_camera: 
-                    
-                    command_to_slide_lift_range = ((dist_from_camera < self.slide_lift_range_down) or
-                                                   (dist_from_camera > self.slide_lift_range_up))
+                if tongs_at_valid_distance_from_camera:
 
-                    if self.slide_lift_range and command_to_slide_lift_range:
-                        if not self.in_sliding_region:
-                            os.system("/usr/bin/canberra-gtk-play --id='bell'")
-                            self.in_sliding_region = True
-                        if dist_from_camera < self.slide_lift_range_down:
-                            self.lift_range_offset = self.lift_range_offset - self.lift_range_offset_change_per_timestep
-                            teleop_marker_position_in_camera_frame[2] = self.slide_lift_range_down
-                        elif dist_from_camera > self.slide_lift_range_up:
-                            self.lift_range_offset = self.lift_range_offset + self.lift_range_offset_change_per_timestep
-                            teleop_marker_position_in_camera_frame[2] = self.slide_lift_range_up
-                        self.lift_range_offset = min(self.max_lift_range_offset, self.lift_range_offset)
-                        self.lift_range_offset = max(self.min_lift_range_offset, self.lift_range_offset)
-
-                        print('self.lift_range_offset = {:.2f} cm'.format(self.lift_range_offset * 100.0))
-                    else:
-                        if self.in_sliding_region:
-                            os.system("/usr/bin/canberra-gtk-play --id='bell'")
-                            self.in_sliding_region = False
-                            
-
-                    goal_wrist_position = ((teleop_marker_position_in_camera_frame - self.teleop_origin) +
-                                           self.center_wrist_position)
-                    goal_wrist_position[2] = goal_wrist_position[2] + self.lift_range_offset
+                    goal_wrist_position =  teleop_marker_position_in_camera_frame - self.teleop_origin#((teleop_marker_position_in_camera_frame - self.teleop_origin) + self.center_wrist_position)
+                    # goal_wrist_position[2] = goal_wrist_position[2] + self.lift_range_offset
 
 
                     # If the gripper width marker (virtual or real)
@@ -149,8 +133,10 @@ class GoalFromMarkers:
                     goal_grip_width = None
                     if grip_width_marker is not None:
                         grip_width = grip_width_marker['info']['grip_width']
+                        grip_width = grip_width - self.min_finger_width
                         # convert to value between 0.0 and 1.0
                         goal_grip_width = (np.clip(grip_width, self.min_finger_width, self.max_finger_width) - self.min_finger_width)/ (self.max_finger_width - self.min_finger_width)
+                        # print('######################################goal_grip_width = {:.2f}'.format(grip_width))
                         # convert to value between -100.0 and 100.0
 
                     goal_x_axis = grip_pose_marker['x_axis']

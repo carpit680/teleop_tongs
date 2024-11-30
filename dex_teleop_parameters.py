@@ -36,25 +36,8 @@ if tongs_to_use == '56mm':
 # the SimpleIK based on the specialized URDF joint
 # limits. They are specified with respect to the robot's
 # coordinate system.
-goal_max_position_z = 0.43
+goal_max_position_z = 0.5
 goal_min_position_z = 0.0
-
-
-# Regions at the top and bottom of the allowable tongs range
-# are reserved for changing the range over which the lift is
-# operating. This sliding region enables a user to use the
-# lift's full range without restarting the code.
-lift_sliding_region_height = 0.3
-
-
-# Set how fast the lift will be translated when being slid.
-lift_range_sliding_speed_multiplier = 10.0 #4.0
-lift_range_offset_change_per_timestep = 0.001 * lift_range_sliding_speed_multiplier
-
-
-dex_wrist_3_grip_range = 400.0
-dex_wrist_grip_range = 200.0
-
 
 # Lower limit for wrist pitch. Allowing angles close to -Pi/2 will
 # allow the gripper to point almost straight down, which is near a
@@ -129,7 +112,7 @@ robot_allowed_to_move = True
 # the lift range are outside of this range.
 
 # Minimum distance from the tongs to the camera in meters
-min_dist_from_camera_to_tongs = 0.3 #0.5
+min_dist_from_camera_to_tongs = 0.4 #0.5
 # Maximum distance from the tongs to the camera in meters
 max_dist_from_camera_to_tongs = 1.0 #1.0
 
@@ -145,23 +128,22 @@ max_tongs_height_range = max_dist_from_camera_to_tongs - min_dist_from_camera_to
 # camera and its z-axis points directly out of the camera on the
 # camera's optical axis.
 teleop_origin_x = 0.0
-teleop_origin_z = min_dist_from_camera_to_tongs + max_tongs_height_range/2.0
-teleop_origin_y = 0.24
+teleop_origin_z = min_dist_from_camera_to_tongs + max_tongs_height_range/3.0
+teleop_origin_y = -0.20
 
 teleop_origin = np.array([teleop_origin_x, teleop_origin_y, teleop_origin_z])
 
 
 # Robot configuration used to define the center wrist position
 
-
 def get_center_configuration(): 
     # manipulate lower objects
     center_configuration = {
         'base_link_shoulder_pan_joint': 0.0,
-        'shoulder_pan_shoulder_lift_joint': 0.0,
-        'shoulder_lift_elbow_joint': 0.0,
+        'shoulder_pan_shoulder_lift_joint': 0.3927,
+        'shoulder_lift_elbow_joint': 0.1222,
         'elbow_wrist_1_joint': 0.0,
-        'wrist_1_wrist_2_joint': 0.0
+        'wrist_1_wrist_2_joint': 0.7854
     }
     return center_configuration
 
@@ -173,10 +155,10 @@ def get_starting_configuration():
     # associated with this starting configuration.
     starting_configuration = {
         'base_link_shoulder_pan_joint': 0.0,
-        'shoulder_pan_shoulder_lift_joint': 0.0,
-        'shoulder_lift_elbow_joint': 0.0,
+        'shoulder_pan_shoulder_lift_joint': 0.3927,
+        'shoulder_lift_elbow_joint': 0.1222,
         'elbow_wrist_1_joint': 0.0,
-        'wrist_1_wrist_2_joint': 0.0
+        'wrist_1_wrist_2_joint': 0.7854
     }
     return starting_configuration
 
