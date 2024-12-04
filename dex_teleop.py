@@ -71,10 +71,12 @@ class DexTeleopNode(Node):
         self.gripper_publisher = self.create_publisher(JointTrajectory, '/gripper_controller/joint_trajectory', 10)
 
         # Marker Pose Publishers (predefined for a maximum of 8 markers)
-        self.marker_pose_publishers = {
-            f'marker_{i}': self.create_publisher(PoseStamped, f'/marker_pose/marker_{i}', 10)
-            for i in range(8)
-        }
+        # self.marker_pose_publishers = {
+        #     f'marker_{i}': self.create_publisher(PoseStamped, f'/marker_pose/marker_{i}', 10)
+        #     for i in range(8)
+        # }
+        self.goal_pose_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10) 
+        self.origin_publisher = self.create_publisher(PoseStamped, '/origin_pose', 10) 
         active_links_mask = [False, True, True, True, True, True, False]
         urdf_file_name = '/media/rightbot/data/Projects/teleop_tong/giraffe.urdf'
         self.urdf = load_urdf(urdf_file_name)
@@ -110,7 +112,7 @@ class DexTeleopNode(Node):
         markers = self.webcam_aruco_detector.process_next_frame()
         goal_dict = self.goal_from_markers.get_goal_dict(markers)
         if goal_dict is not None:
-            position = goal_dict.get('wrist_position', [0.0, 0.0, 0.0])
+            wrist_position = goal_dict.get('wrist_position', [0.0, 0.0, 0.0])
 
             # Extract orientation axes
             x_axis = goal_dict.get('gripper_x_axis', [1.0, 0.0, 0.0])
@@ -119,106 +121,12 @@ class DexTeleopNode(Node):
 
             # Convert orientation axes to quaternion
             rotation_matrix = np.array([x_axis, y_axis, z_axis]).T # Columns as x, y, z axes
-            # Correction for 90-degree counterclockwise rotation around the z-axis
-            rotation_correction = np.array([
-                [0, -1, 0],
-                [1,  0, 0],
-                [0,  0, 1]
-            ])
 
-            # Apply the correction
-            corrected_rotation_matrix = rotation_matrix @ rotation_correction # Apply the correction
-            quaternion = Rotation.from_matrix(corrected_rotation_matrix).as_quat()  # [x, y, z, w]
-
-            # Create a PoseStamped message for the marker
-            pose_msg = PoseStamped()
-            pose_msg.header.stamp = self.get_clock().now().to_msg()
-            pose_msg.header.frame_id = "world"  # Update as per your RViz frame
-
-            pose_msg.pose.position.x = position[0]
-            pose_msg.pose.position.y = position[1]
-            pose_msg.pose.position.z = position[2]
-            pose_msg.pose.orientation.x = quaternion[0]
-            pose_msg.pose.orientation.y = quaternion[1]
-            pose_msg.pose.orientation.z = quaternion[2]
-            pose_msg.pose.orientation.w = quaternion[3]
-
-            # Publish the marker's pose using the pre-created publisher
-            topic_name = f'marker_0'
-            self.marker_pose_publishers[topic_name].publish(pose_msg)
-
-            # # Extract position
-            # self.get_logger().info(f'Markers#############: {markers}')
-            # position = markers['right_tongs_left_bottom'].get('pos', [0.0, 0.0, 0.0])
-
-            # # Extract orientation axes
-            # x_axis = markers['right_tongs_left_bottom'].get('x_axis', [1.0, 0.0, 0.0])
-            # y_axis = markers['right_tongs_left_bottom'].get('y_axis', [0.0, 1.0, 0.0])
-            # z_axis = markers['right_tongs_left_bottom'].get('z_axis', [0.0, 0.0, 1.0])
-
-            # # Convert orientation axes to quaternion
-            # rotation_matrix = np.array([x_axis, y_axis, z_axis]).T # Columns as x, y, z axes
-            # quaternion = Rotation.from_matrix(rotation_matrix).as_quat()  # [x, y, z, w]
-
-            # # Create a PoseStamped message for the marker
-            # pose_msg = PoseStamped()
-            # pose_msg.header.stamp = self.get_clock().now().to_msg()
-            # pose_msg.header.frame_id = "world"  # Update as per your RViz frame
-
-            # pose_msg.pose.position.x = position[0]
-            # pose_msg.pose.position.y = position[1]
-            # pose_msg.pose.position.z = position[2]
-            # pose_msg.pose.orientation.x = quaternion[0]
-            # pose_msg.pose.orientation.y = quaternion[1]
-            # pose_msg.pose.orientation.z = quaternion[2]
-            # pose_msg.pose.orientation.w = quaternion[3]
-
-            # # Publish the marker's pose using the pre-created publisher
-            # topic_name = f'marker_1'
-            # self.marker_pose_publishers[topic_name].publish(pose_msg)
-            # self.get_logger().info(f'Published marker {marker_id} pose on topic {topic_name}: {pose_msg}')
-        # if markers:
-        #     for i, (marker_id, marker_data) in enumerate(markers.items()):
-        #         if i >= 8:
-        #             self.get_logger().warn(f'Maximum marker limit (8) reached. Skipping marker {marker_id}.')
-        #             break
-
-        #         # Extract position
-        #         position = marker_data.get('pos', [0.0, 0.0, 0.0])
-
-        #         # Extract orientation axes
-        #         x_axis = marker_data.get('x_axis', [1.0, 0.0, 0.0])
-        #         y_axis = marker_data.get('y_axis', [0.0, 1.0, 0.0])
-        #         z_axis = marker_data.get('z_axis', [0.0, 0.0, 1.0])
-
-        #         # Convert orientation axes to quaternion
-        #         rotation_matrix = np.array([x_axis, y_axis, z_axis]).T # Columns as x, y, z axes
-        #         quaternion = Rotation.from_matrix(rotation_matrix).as_quat()  # [x, y, z, w]
-
-        #         # Create a PoseStamped message for the marker
-        #         pose_msg = PoseStamped()
-        #         pose_msg.header.stamp = self.get_clock().now().to_msg()
-        #         pose_msg.header.frame_id = "world"  # Update as per your RViz frame
-
-        #         pose_msg.pose.position.x = position[0]
-        #         pose_msg.pose.position.y = position[1]
-        #         pose_msg.pose.position.z = position[2]
-        #         pose_msg.pose.orientation.x = quaternion[0]
-        #         pose_msg.pose.orientation.y = quaternion[1]
-        #         pose_msg.pose.orientation.z = quaternion[2]
-        #         pose_msg.pose.orientation.w = quaternion[3]
-
-        #         # Publish the marker's pose using the pre-created publisher
-        #         topic_name = f'marker_2'
-        #         self.marker_pose_publishers[topic_name].publish(pose_msg)
-        #         # self.get_logger().info(f'Published marker {marker_id} pose on topic {topic_name}: {pose_msg}')
-
-        if goal_dict:
             if self.print_goal:
                 self.get_logger().info(f'Goal dict:\n{pp.pformat(goal_dict)}')
 
             # Extract wrist position
-            wrist_position = goal_dict['wrist_position']
+            # wrist_position = goal_dict['wrist_position']
             gripper_width = goal_dict.get('grip_width', None)
             lower_limit, upper_limit = self.joint_limits['wrist_2_gripper_joint']
             gripper_position = map_within_limits(gripper_width, 0.0, 1.0, lower_limit, upper_limit, 0)
@@ -230,21 +138,78 @@ class DexTeleopNode(Node):
             z_axis = goal_dict.get('gripper_z_axis', [0.0, 0.0, 1.0])
 
             # Convert orientation axes to quaternion
-            rotation_matrix = np.array([x_axis, y_axis, z_axis])  # Columns as x, y, z axes
-            # self.get_logger().info(f'rotation_matrix: {rotation_matrix}')
-            # quaternion = Rotation.from_matrix(rotation_matrix).as_quat()  # [x, y, z, w]
+            # rotation_matrix = np.array([x_axis, y_axis, z_axis])  # Columns as x, y, z axes
+            # Construct the original rotation matrix
+            # original_rotation_matrix = np.array([x_axis, y_axis, z_axis]).T
 
+            # Decompose into roll, pitch, and yaw
+            original_rpy = Rotation.from_matrix(rotation_matrix).as_euler('xyz')  # [roll, pitch, yaw]
 
+            # Compute new yaw from wrist position
+            x, y, _ = wrist_position  # Extract x and y from the position
+            new_yaw = -np.arctan2(abs(y),-x )  # Calculate yaw in radians
+            new_marker_yaw = np.arctan2(abs(y),x )  # Calculate yaw in radians
+
+            # Combine original roll, pitch with new yaw
+            new_rpy = [original_rpy[0], original_rpy[1], new_yaw]  # [roll, pitch, new_yaw]
+            new_marker_rpy = [original_rpy[0], original_rpy[1], new_marker_yaw]
+            # Create a new rotation matrix with updated yaw
+            new_rotation_matrix = Rotation.from_euler('xyz', new_rpy).as_matrix()
+            new_marker_rotation_matrix = Rotation.from_euler('xyz', new_marker_rpy).as_matrix()
+            rotation_correction = np.array([
+                [0, -1, 0],
+                [1,  0, 0],
+                [0,  0, 1]
+            ])
+
+            # Apply the correction
+            corrected_rotation_matrix = new_rotation_matrix @ rotation_correction # Apply the correction
+            correct_rotation_rpy = Rotation.from_matrix(corrected_rotation_matrix).as_euler('xyz')
+            quaternion = Rotation.from_matrix(new_marker_rotation_matrix).as_quat()  # [x, y, z, w]
+            wrist_position[0] = wrist_position[0] * 3
+            wrist_position[1] = wrist_position[1] * 3
+            wrist_position[2] = wrist_position[2] * 1
+
+            pose_msg = PoseStamped()
+            pose_msg.header.stamp = self.get_clock().now().to_msg()
+            pose_msg.header.frame_id = "world"  # Update as per your RViz frame
+
+            pose_msg.pose.position.x = wrist_position[0]
+            pose_msg.pose.position.y = wrist_position[1]
+            pose_msg.pose.position.z = wrist_position[2]
+            pose_msg.pose.orientation.x = quaternion[0]
+            pose_msg.pose.orientation.y = quaternion[1]
+            pose_msg.pose.orientation.z = quaternion[2]
+            pose_msg.pose.orientation.w = quaternion[3]
+
+            self.goal_pose_publisher.publish(pose_msg)
             # Solve IK to get joint positions
+            physical_wrist_position = []
+            physical_wrist_position.append(wrist_position[1])
+            physical_wrist_position.append(-wrist_position[0])
+            physical_wrist_position.append(wrist_position[2])
+            physical_wrist_orientation = []
+            physical_wrist_orientation.append(correct_rotation_rpy[1])
+            physical_wrist_orientation.append(correct_rotation_rpy[0])
+            physical_wrist_orientation.append(correct_rotation_rpy[2])
 
-            # self.get_logger().info(f'Wrist position: {wrist_position}')
-            # joint_positions = self.simple_ik.ik(wrist_position)
-            joint_positions = self.giraffe_chain.inverse_kinematics(wrist_position, rotation_matrix, orientation_mode="all")
+            # joint_positions = self.giraffe_chain.inverse_kinematics(physical_wrist_position, physical_wrist_orientation, orientation_mode="all")
+            joint_positions = self.giraffe_chain.inverse_kinematics(physical_wrist_position)
+            current_configuration = {
+                'base_link_shoulder_pan_joint':     joint_positions[0],
+                'shoulder_pan_shoulder_lift_joint': joint_positions[1],
+                'shoulder_lift_elbow_joint':        joint_positions[2],
+                'elbow_wrist_1_joint':              joint_positions[3],
+                'wrist_1_wrist_2_joint':            joint_positions[4]
+            }
 
+            achieved_position = self.simple_ik.fk(current_configuration, use_urdf=True)
+            self.get_logger().info(f'wrist_position: {physical_wrist_position}')
+            self.get_logger().info(f'achieved_position: {achieved_position}')
             if len(joint_positions) > 0:
                 # Map joint_positions to the correct order
                 ordered_positions = [float(x) for x in joint_positions[1:-1]]
-                self.get_logger().info(f'ordered_positions: {ordered_positions}')
+                self.get_logger().info(f'ordered_joint_positions: {ordered_positions}')
 
                 # Check if the positions have changed significantly
                 if self.previous_positions and self.positions_similar(ordered_positions, self.previous_positions):
@@ -277,7 +242,6 @@ class DexTeleopNode(Node):
                 gripper_point.time_from_start.nanosec = 0
                 gripper_msg.points.append(gripper_point)
                 # Publish the trajectory
-                # self.get_logger().info(f'Publishing trajectory: {trajectory_msg}')
                 self.trajectory_publisher.publish(trajectory_msg)
                 self.gripper_publisher.publish(gripper_msg)
 

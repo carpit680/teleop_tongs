@@ -458,9 +458,9 @@ class WebcamArucoDetector:
             markers[virtual_tongs_marker['name']] = virtual_tongs_marker
             
         if self.visualize_detections:
-            display_image = fit_image_to_screen(color_image, ratio=0.75)
+            # display_image = fit_image_to_screen(color_image, ratio=0.75)
 
-            cv2.imshow('ArUco Detections', display_image)
+            cv2.imshow('ArUco Detections', color_image)
             cv2.waitKey(1)
 
         return markers
