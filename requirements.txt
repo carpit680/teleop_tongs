@@ -4,3 +4,8 @@ jupyter
 filelock
 pyserial
 transforms3d
+pyusb
+opencv-python
+urchin
+XLib
+ikpy
