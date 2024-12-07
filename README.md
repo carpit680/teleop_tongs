@@ -46,7 +46,13 @@ For a single robot, you will need right-hand tongs like those shown in the follo
 
 ### Run the Installation Script
 
-After cloning the repository, run the following installation script found in the repository's root directory. 
+Clone this github repository.
+
+```bash
+git clone -b ros2 https://github.com/carpit680/teleop_tongs.git
+```
+
+Then run the following installation script found in the repository's root directory.
 
 ```bash
 ./install_dex_teleop.sh
@@ -110,7 +116,7 @@ The images will be stored in the following directory.
 ./webcam_calibration_images/<camera name>/<camera resolution>
 ```
 
-Once you've collected the calibration images, run the following command to process the images. 
+Once you've collected the calibration images, run the following command to process the images.
 
 ```bash
 python3 webcam_calibration_process_images.py
@@ -162,7 +168,7 @@ First, run the interface process in a terminal. This process observes ArUco mark
 python3 goal_from_teleop.py --multiprocessing
 ```
 
-Second, run the robot process in a different terminal. This process receives gripper goals and attempts to achieve them by controlling the robot. 
+Second, run the robot process in a different terminal. This process receives gripper goals and attempts to achieve them by controlling the robot.
 
 ```bash
 python3 gripper_to_goal.py --multiprocessing --fast
