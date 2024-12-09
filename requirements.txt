@@ -9,3 +9,4 @@ opencv-python
 urchin
 XLib
 ikpy
+feetech-servo-sdk
