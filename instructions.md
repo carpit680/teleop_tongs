@@ -9,3 +9,5 @@
 * ```python3 webcam_calibration_process_images.py```
 * ```python3 webcam_teleop_interface.py```
 * ```python3 dex_teleop.py```
+* ```sudo usermod -a -G dialout $USER```
+* ```newgrp dialout```
