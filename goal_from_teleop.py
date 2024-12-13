@@ -123,10 +123,7 @@ class GoalFromMarkers:
 
                 if tongs_at_valid_distance_from_camera:
 
-                    goal_wrist_position =  teleop_marker_position_in_camera_frame - self.teleop_origin#((teleop_marker_position_in_camera_frame - self.teleop_origin) + self.center_wrist_position)
-                    # goal_wrist_position[2] = goal_wrist_position[2] *2
-                    # make x component of wrist position be twice the x component of the tleop marker position
-                    # goal_wrist_position[0] = goal_wrist_position[0] * 3
+                    goal_wrist_position =  teleop_marker_position_in_camera_frame - self.teleop_origin
                     # If the gripper width marker (virtual or real)
                     # has been observed, use it to command the robot's
                     # gripper.

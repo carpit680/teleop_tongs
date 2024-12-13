@@ -128,8 +128,8 @@ max_tongs_height_range = max_dist_from_camera_to_tongs - min_dist_from_camera_to
 # camera and its z-axis points directly out of the camera on the
 # camera's optical axis.
 teleop_origin_x = 0.0
-teleop_origin_z = min_dist_from_camera_to_tongs + max_tongs_height_range/3.0
 teleop_origin_y = -0.20
+teleop_origin_z = min_dist_from_camera_to_tongs + max_tongs_height_range/3.0
 
 teleop_origin = np.array([teleop_origin_x, teleop_origin_y, teleop_origin_z])
 

@@ -8,8 +8,8 @@ from image_processing_helpers import fit_image_to_screen
 
 
 camera_name = 'Mi USB Webcam HD'
-image_width = 1920
-image_height = 1080
+image_width = 1280
+image_height = 720
 fps = 30
 
 num_images_to_collect = 60

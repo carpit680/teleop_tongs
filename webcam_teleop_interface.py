@@ -5,14 +5,9 @@ import cv2
 import teleop_aruco_detector as ad
 import yaml
 from yaml.loader import SafeLoader
-import subprocess
-import glob
-import sys
-from copy import deepcopy
 import time
 import webcam as wc
 import dex_teleop_parameters as dt
-from image_processing_helpers import fit_image_to_screen
 
 
 def pixel_from_3d(xyz, camera_info):
@@ -39,12 +34,80 @@ def pixel_to_3d(xy_pix, z_in, camera_info):
     xyz_out = np.array([x_out, y_out, z_in])
     return xyz_out
 
+def draw_directions(image, teleop_origin, camera_info):
+    """
+    Draws "Front" on the top center, "Left" on the left center, "Rear" on the bottom center,
+    and "Right" on the right center of the given image.
+
+    Parameters:
+        image (numpy.ndarray): The input image.
+
+    Returns:
+        numpy.ndarray: The image with the text overlayed.
+    """
+    # Make a copy of the image to avoid modifying the original
+    output_image = image.copy()
+
+    # Get the dimensions of the image
+    height, width, _ = output_image.shape
+
+    # Define font properties
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.5
+    font_thickness = 1
+    color = (0, 255, 255)  # Yellow in BGR
+
+    # Calculate positions for the text
+    text_front = "Front"
+    text_left = "Left"
+    text_rear = "Rear"
+    text_right = "Right"
+
+    # Front (Top Center)
+    front_size = cv2.getTextSize(text_front, font, font_scale, font_thickness)[0]
+    front_x = (width - front_size[0]) // 2
+    front_y = front_size[1] + 10
+
+    # Left (Left Center)
+    left_size = cv2.getTextSize(text_left, font, font_scale, font_thickness)[0]
+    left_x = 10
+    left_y = (height + left_size[1]) // 2
+
+    # Rear (Bottom Center)
+    rear_size = cv2.getTextSize(text_rear, font, font_scale, font_thickness)[0]
+    rear_x = (width - rear_size[0]) // 2
+    rear_y = height - 10
+
+    # Right (Right Center)
+    right_size = cv2.getTextSize(text_right, font, font_scale, font_thickness)[0]
+    right_x = width - right_size[0] - 10
+    right_y = (height + right_size[1]) // 2
+    pixel_teleop_origin = pixel_from_3d(teleop_origin, camera_info)
+    pixel_teleop_origin[1] = height/2 - pixel_teleop_origin[1]
+    pixel_teleop_origin[0] = pixel_teleop_origin[0]
+    pixel_teleop_origin = [int(pixel_teleop_origin[0]), int(pixel_teleop_origin[1])]
+    print('pixel_teleop_origin =', pixel_teleop_origin)
+
+    # Draw axes on the image
+    cv2.line(output_image, (0, pixel_teleop_origin[1]), (width, pixel_teleop_origin[1]), (0, 0, 255), 2)
+    cv2.line(output_image, (pixel_teleop_origin[0], 0), (pixel_teleop_origin[0], height), (0, 255, 0), 2)
+
+    # Draw origin on the image
+    cv2.circle(output_image, (pixel_teleop_origin[0], pixel_teleop_origin[1]), 5, (255, 0, 0), -1)
+
+    # Draw text on the image
+    cv2.putText(output_image, text_front, (front_x, front_y), font, font_scale, color, font_thickness, lineType=cv2.LINE_AA)
+    cv2.putText(output_image, text_left, (left_x, left_y), font, font_scale, color, font_thickness, lineType=cv2.LINE_AA)
+    cv2.putText(output_image, text_rear, (rear_x, rear_y), font, font_scale, color, font_thickness, lineType=cv2.LINE_AA)
+    cv2.putText(output_image, text_right, (right_x, right_y), font, font_scale, color, font_thickness, lineType=cv2.LINE_AA)
+
+    return output_image
+
 class WebcamArucoDetector:
     def __init__(self, tongs_prefix, visualize_detections=False):
 
-        #self.webcam = wc.Webcam(fps=30, image_width=800, image_height=448, use_calibration=True)
-        self.webcam = wc.Webcam(fps=30, image_width=1920, image_height=1080, use_calibration=True)
-        #self.webcam = wc.Webcam(fps=15, image_width=1920, image_height=1080, use_calibration=True)
+        # self.webcam = wc.Webcam(fps=15, image_width=1280, image_height=720, use_calibration=True)
+        self.webcam = wc.Webcam(fps=15, image_width=1920, image_height=1080, use_calibration=True)
         
         self.first_frame = True
         self.visualize_detections = visualize_detections
@@ -443,12 +506,6 @@ class WebcamArucoDetector:
     def process_next_frame(self): 
 
         color_image, color_camera_info = self.webcam.get_next_frame()
-        
-        #print('color_image.shape =', color_image.shape)
-
-        depth_image = None
-        depth_camera_info = color_camera_info
-        depth_scale = 1.0
 
         self.aruco_detector.update(color_image, color_camera_info)
         markers = self.aruco_detector.get_detected_markers()
@@ -458,9 +515,9 @@ class WebcamArucoDetector:
             markers[virtual_tongs_marker['name']] = virtual_tongs_marker
             
         if self.visualize_detections:
-            # display_image = fit_image_to_screen(color_image, ratio=0.75)
-
-            cv2.imshow('ArUco Detections', color_image)
+            mirrored_image = cv2.flip(color_image, 0)
+            mirrored_image = draw_directions(mirrored_image, dt.teleop_origin, color_camera_info)
+            cv2.imshow('ArUco Detections', mirrored_image)
             cv2.waitKey(1)
 
         return markers

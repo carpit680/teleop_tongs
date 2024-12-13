@@ -46,8 +46,8 @@ class Webcam:
     def __init__(self,
                  camera_name='Mi USB Webcam HD',
                  fps=30,
-                 image_width=1920,
-                 image_height=1080,
+                 image_width=1280,
+                 image_height=720,
                  use_calibration=False,
                  use_second_camera=False,
                  show_images=False):
@@ -164,15 +164,10 @@ class Webcam:
             webcam_command_line_configuration = 'v4l2-ctl -d ' + self.camera_device + ' -c auto_exposure=1,exposure_time_absolute=' + str(exposure_time) + ',focus_automatic_continuous=0'
             subprocess.check_call(webcam_command_line_configuration, shell=True)
 
-
     def get_next_frame(self): 
 
         # Wait for a coherent pair of frames: depth and color
         ret, color_image = self.webcam.read()
-
-        depth_image = None
-        depth_camera_info = self.color_camera_info
-        depth_scale = 1.0
             
         if self.show_images:
             cv2.imshow('Webcam Image', color_image)

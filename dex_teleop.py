@@ -137,11 +137,6 @@ class DexTeleopNode(Node):
             y_axis = goal_dict.get('gripper_y_axis', [0.0, 1.0, 0.0])
             z_axis = goal_dict.get('gripper_z_axis', [0.0, 0.0, 1.0])
 
-            # Convert orientation axes to quaternion
-            # rotation_matrix = np.array([x_axis, y_axis, z_axis])  # Columns as x, y, z axes
-            # Construct the original rotation matrix
-            # original_rotation_matrix = np.array([x_axis, y_axis, z_axis]).T
-
             # Decompose into roll, pitch, and yaw
             original_rpy = Rotation.from_matrix(rotation_matrix).as_euler('xyz')  # [roll, pitch, yaw]
 
