@@ -82,11 +82,11 @@ def draw_directions(image, teleop_origin, camera_info):
     right_size = cv2.getTextSize(text_right, font, font_scale, font_thickness)[0]
     right_x = width - right_size[0] - 10
     right_y = (height + right_size[1]) // 2
+
+    # Convert teleop origin to pixel coordinates
     pixel_teleop_origin = pixel_from_3d(teleop_origin, camera_info)
     pixel_teleop_origin[1] = height/2 - pixel_teleop_origin[1]
-    pixel_teleop_origin[0] = pixel_teleop_origin[0]
     pixel_teleop_origin = [int(pixel_teleop_origin[0]), int(pixel_teleop_origin[1])]
-    print('pixel_teleop_origin =', pixel_teleop_origin)
 
     # Draw axes on the image
     cv2.line(output_image, (0, pixel_teleop_origin[1]), (width, pixel_teleop_origin[1]), (0, 0, 255), 2)

@@ -37,14 +37,6 @@ class GoalFromMarkers:
         self.tongs_lift_range = self.tongs_max_dist_from_camera - self.tongs_min_dist_from_camera
         print('GoalFromMarkers: self.tongs_lift_range = {:.2f} cm'.format(self.tongs_lift_range * 100.0))
 
-        # The maximum and minimum goal_wrist_position z values do not
-        # need to be perfect due to joint limit checking performed by
-        # the SimpleIK based on the specialized URDF joint
-        # limits. They are specified with respect to the robot's
-        # coordinate system.
-        self.max_goal_wrist_position_z = dt.goal_max_position_z
-        self.min_goal_wrist_position_z = dt.goal_min_position_z
-
         self.min_finger_width = dt.tongs_closed_grip_width + dt.tongs_marker_center_to_tong_tip
         self.max_finger_width = dt.tongs_open_grip_width + dt.tongs_marker_center_to_tong_tip
 

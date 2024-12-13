@@ -48,6 +48,9 @@ class DexTeleopNode(Node):
         use_fastest_mode = self.get_parameter('use_fastest_mode').value
         left_handed = self.get_parameter('left_handed').value
 
+        self.max_goal_wrist_position_z = dt.goal_max_position_z
+        self.min_goal_wrist_position_z = dt.goal_min_position_z
+
         # Robot speed
         self.robot_speed = 'fast' if use_fastest_mode else 'slow'
         self.get_logger().info(f'Running with robot_speed = {self.robot_speed}')
@@ -113,7 +116,9 @@ class DexTeleopNode(Node):
         goal_dict = self.goal_from_markers.get_goal_dict(markers)
         if goal_dict is not None:
             wrist_position = goal_dict.get('wrist_position', [0.0, 0.0, 0.0])
-
+            x, y, z = wrist_position  # Extract x and y from the position
+            if z < self.min_goal_wrist_position_z or z > self.max_goal_wrist_position_z:
+                return
             # Extract orientation axes
             x_axis = goal_dict.get('gripper_x_axis', [1.0, 0.0, 0.0])
             y_axis = goal_dict.get('gripper_y_axis', [0.0, 1.0, 0.0])
@@ -141,7 +146,6 @@ class DexTeleopNode(Node):
             original_rpy = Rotation.from_matrix(rotation_matrix).as_euler('xyz')  # [roll, pitch, yaw]
 
             # Compute new yaw from wrist position
-            x, y, _ = wrist_position  # Extract x and y from the position
             new_yaw = -np.arctan2(abs(y),-x )  # Calculate yaw in radians
             new_marker_yaw = np.arctan2(abs(y),x )  # Calculate yaw in radians
 
