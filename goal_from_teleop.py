@@ -72,7 +72,7 @@ class GoalFromMarkers:
         #     'tongs': 
         #     {
         #         'name': 'tongs', 
-        #         'pos': array([0.03428771, 0.20160049, 0.42912809]), 
+        #         'pos': array([0.03428771, 0.20160049, 0.4296409]), 
         #         'x_axis': array([ 0.99879561,  0.01534249, -0.04660411]), 
         #         'y_axis': array([ 0.03271391, -0.91616102,  0.39947314]), 
         #         'z_axis': array([-0.03656795, -0.40051662, -0.91555951]), 
@@ -84,6 +84,10 @@ class GoalFromMarkers:
         # }
 
         if markers:
+            # for marker_name in markers.keys():
+            #     if "right_tongs_left_side" == marker_name:
+            #         print(marker_name," : ", markers[marker_name]['pos'])
+
             grip_pose_marker = markers.get(self.grip_pose_marker_name, None)
             grip_width_marker = markers.get(self.grip_width_marker_name, None)
 

@@ -37,7 +37,7 @@ if tongs_to_use == '56mm':
 # limits. They are specified with respect to the robot's
 # coordinate system.
 goal_max_position_z = 0.5
-goal_min_position_z = 0.05
+goal_min_position_z = 0.0
 
 # Lower limit for wrist pitch. Allowing angles close to -Pi/2 will
 # allow the gripper to point almost straight down, which is near a

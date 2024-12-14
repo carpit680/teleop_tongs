@@ -106,8 +106,8 @@ def draw_directions(image, teleop_origin, camera_info):
 class WebcamArucoDetector:
     def __init__(self, tongs_prefix, visualize_detections=False):
 
-        # self.webcam = wc.Webcam(fps=15, image_width=1280, image_height=720, use_calibration=True)
-        self.webcam = wc.Webcam(fps=15, image_width=1920, image_height=1080, use_calibration=True)
+        self.webcam = wc.Webcam(fps=15, image_width=640, image_height=480, use_calibration=True)
+        # self.webcam = wc.Webcam(fps=15, image_width=1920, image_height=1080, use_calibration=True)
         
         self.first_frame = True
         self.visualize_detections = visualize_detections
@@ -253,6 +253,9 @@ class WebcamArucoDetector:
                                 (-(grip_width/2.0) * grip_x_axis) +
                                 (-(self.cube_side/2.0) * tongs_left_side_marker['y_axis'])+
                                 (-(self.cube_side/2.0) * tongs_left_side_marker['z_axis']))
+                    # print("tongs_left_side_marker debug : ", grip_pos)
+                    grip_pos[1] = grip_pos[1] - 0.15
+
 
                 elif right_side_visible:
                     grip_pos = tongs_right_side_marker['pos'].copy()
@@ -270,6 +273,7 @@ class WebcamArucoDetector:
                                 ((grip_width/2.0) * grip_x_axis) +
                                 (-(self.cube_side/2.0) * tongs_right_side_marker['y_axis'])+
                                 (-(self.cube_side/2.0) * tongs_right_side_marker['z_axis']))
+                    grip_pos[1] = grip_pos[1] - 0.15
                 
 
                 virtual_marker_name = 'tongs'
@@ -498,7 +502,9 @@ class WebcamArucoDetector:
             }
 
             self.previous_grip_width = grip_width
-            
+        # if virtual_marker is not None: 
+        #     print('final virtual_marker pose=', virtual_marker["pos"])
+
         return virtual_marker
         
     

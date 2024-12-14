@@ -15,7 +15,7 @@ from scipy.spatial.transform import Rotation
 from ikpy.chain import Chain
 import urchin as urdf_loader
 import os
-
+import math
 
 def load_urdf(file_name):
     if not os.path.isfile(file_name):
@@ -93,7 +93,7 @@ class DexTeleopNode(Node):
 
         # Debugging
         self.print_timing = False
-        self.print_goal = True
+        self.print_goal = False
         self.loop_timer = lt.LoopTimer()
 
         # Joint names
@@ -147,27 +147,32 @@ class DexTeleopNode(Node):
 
             # Compute new yaw from wrist position
             new_yaw = -np.arctan2(abs(y),-x )  # Calculate yaw in radians
-            new_marker_yaw = np.arctan2(abs(y),x )  # Calculate yaw in radians
+            # new_marker_yaw = np.arctan2(abs(y),x )  # Calculate yaw in radians
 
             # Combine original roll, pitch with new yaw
-            new_rpy = [original_rpy[0], original_rpy[1], new_yaw]  # [roll, pitch, new_yaw]
-            new_marker_rpy = [original_rpy[0], original_rpy[1], new_marker_yaw]
+            # new_rpy = [original_rpy[0], original_rpy[1], new_yaw]  # [roll, pitch, new_yaw]
+            # new_rpy = [0.0, -original_rpy[0], new_yaw]  # [roll, pitch, new_yaw]
+            # new_marker_rpy = [original_rpy[1], original_rpy[0], new_marker_yaw]
+            new_marker_rpy = [-original_rpy[1], -original_rpy[0], new_yaw]
+            # self.get_logger().info(f'Original RPY: {new_marker_rpy}')
             # Create a new rotation matrix with updated yaw
-            new_rotation_matrix = Rotation.from_euler('xyz', new_rpy).as_matrix()
+            # new_rotation_matrix = Rotation.from_euler('xyz', new_rpy).as_matrix()
             new_marker_rotation_matrix = Rotation.from_euler('xyz', new_marker_rpy).as_matrix()
-            rotation_correction = np.array([
-                [0, -1, 0],
-                [1,  0, 0],
-                [0,  0, 1]
-            ])
+            # rotation_correction = np.array([
+            #     [0, -1, 0],
+            #     [1,  0, 0],
+            #     [0,  0, 1]
+            # ])
 
             # Apply the correction
-            corrected_rotation_matrix = new_rotation_matrix @ rotation_correction # Apply the correction
-            correct_rotation_rpy = Rotation.from_matrix(corrected_rotation_matrix).as_euler('xyz')
+            # corrected_rotation_matrix = new_rotation_matrix @ rotation_correction # Apply the correction
+            # correct_rotation_rpy = Rotation.from_matrix(corrected_rotation_matrix).as_euler('xyz')
+            wrist_1_to_gripper = 0.08
+            wrist_position
             quaternion = Rotation.from_matrix(new_marker_rotation_matrix).as_quat()  # [x, y, z, w]
             wrist_position[0] = wrist_position[0] * 3
             wrist_position[1] = wrist_position[1] * 3
-            wrist_position[2] = wrist_position[2] * 1
+            wrist_position[2] = wrist_position[2] + wrist_1_to_gripper * math.sin(new_marker_rpy[1])
 
             pose_msg = PoseStamped()
             pose_msg.header.stamp = self.get_clock().now().to_msg()
@@ -188,27 +193,37 @@ class DexTeleopNode(Node):
             physical_wrist_position.append(-wrist_position[0])
             physical_wrist_position.append(wrist_position[2])
             physical_wrist_orientation = []
-            physical_wrist_orientation.append(correct_rotation_rpy[1])
-            physical_wrist_orientation.append(correct_rotation_rpy[0])
-            physical_wrist_orientation.append(correct_rotation_rpy[2])
+            physical_wrist_orientation.append(new_marker_rpy[0])
+            physical_wrist_orientation.append(new_marker_rpy[1])
+            physical_wrist_orientation.append(new_marker_rpy[2])
 
-            # joint_positions = self.giraffe_chain.inverse_kinematics(physical_wrist_position, physical_wrist_orientation, orientation_mode="all")
+            # joint_positions = self.giraffe_chain.inverse_kinematics(physical_wrist_position, physical_wrist_orientation, orientation_mode="Y")
             joint_positions = self.giraffe_chain.inverse_kinematics(physical_wrist_position)
-            current_configuration = {
-                'base_link_shoulder_pan_joint':     joint_positions[0],
-                'shoulder_pan_shoulder_lift_joint': joint_positions[1],
-                'shoulder_lift_elbow_joint':        joint_positions[2],
-                'elbow_wrist_1_joint':              joint_positions[3],
-                'wrist_1_wrist_2_joint':            joint_positions[4]
-            }
+            # current_configuration = {
+            #     'base_link_shoulder_pan_joint':     joint_positions[0],
+            #     'shoulder_pan_shoulder_lift_joint': joint_positions[1],
+            #     'shoulder_lift_elbow_joint':        joint_positions[2],
+            #     'elbow_wrist_1_joint':              joint_positions[3],
+            #     'wrist_1_wrist_2_joint':            joint_positions[4]
+            # }
 
-            achieved_position = self.simple_ik.fk(current_configuration, use_urdf=True)
-            self.get_logger().info(f'wrist_position: {physical_wrist_position}')
-            self.get_logger().info(f'achieved_position: {achieved_position}')
+            # achieved_position = self.simple_ik.fk(current_configuration, use_urdf=True)
+            # self.get_logger().info(f'wrist_position: {physical_wrist_position}')
+            # self.get_logger().info(f'achieved_position: {achieved_position}')
             if len(joint_positions) > 0:
                 # Map joint_positions to the correct order
                 ordered_positions = [float(x) for x in joint_positions[1:-1]]
-                self.get_logger().info(f'ordered_joint_positions: {ordered_positions}')
+                ordered_positions[-1] = new_marker_rpy[0] + 1.5708
+                if new_marker_rpy[1] > 0:
+                    new_marker_rpy[1] = new_marker_rpy[1] - 3.1415
+                else:
+                    new_marker_rpy[1] = new_marker_rpy[1] + 3.1415
+                print(f'position={ordered_positions[-2]}, pitch={new_marker_rpy[1]}')
+                ordered_positions[-2] = ordered_positions[-2] - new_marker_rpy[1]
+                # TODO: Change last ordered position value based on the absolute roll of the marker
+
+
+                # self.get_logger().info(f'ordered_joint_positions: {ordered_positions}')
 
                 # Check if the positions have changed significantly
                 if self.previous_positions and self.positions_similar(ordered_positions, self.previous_positions):

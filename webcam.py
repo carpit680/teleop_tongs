@@ -46,8 +46,8 @@ class Webcam:
     def __init__(self,
                  camera_name='Mi USB Webcam HD',
                  fps=30,
-                 image_width=1280,
-                 image_height=720,
+                 image_width=640,
+                 image_height=480,
                  use_calibration=False,
                  use_second_camera=False,
                  show_images=False):
@@ -134,12 +134,12 @@ class Webcam:
             # Maximum resolutions and framerates for TWO Logitech
             # C930e cameras plugged into the Stretch 3 trunk
             #
-            # 1280x720 at 15 fps
+            # 640x480 at 15 fps
             # 1600x896 at 15 fps (startup may be less robust)
             # 1920x1080 at 10 fps
 
             image_size = (image_height, image_width)
-            #image_size = (896, 1600) #(1080, 1920) #(720, 1280) #(600, 800) #(480, 640)
+            #image_size = (896, 1600) #(1080, 1920) #(480, 640) #(600, 800) #(480, 640)
             
             frames_per_second = fps
             #frames_per_second = 15 #30 #10
