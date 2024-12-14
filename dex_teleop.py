@@ -170,8 +170,8 @@ class DexTeleopNode(Node):
             wrist_1_to_gripper = 0.08
             wrist_position
             quaternion = Rotation.from_matrix(new_marker_rotation_matrix).as_quat()  # [x, y, z, w]
-            wrist_position[0] = wrist_position[0] * 3
-            wrist_position[1] = wrist_position[1] * 3
+            wrist_position[0] = wrist_position[0] * min(1.0, (3 * 0.36/wrist_position[0]))
+            wrist_position[1] = wrist_position[1] * min(1.0, (3 * 0.36/wrist_position[1]))
             wrist_position[2] = wrist_position[2] + wrist_1_to_gripper * math.sin(new_marker_rpy[1])
 
             pose_msg = PoseStamped()
