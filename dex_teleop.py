@@ -114,6 +114,7 @@ class DexTeleopNode(Node):
         # Process the next webcam frame
         markers = self.webcam_aruco_detector.process_next_frame()
         goal_dict = self.goal_from_markers.get_goal_dict(markers)
+
         if goal_dict is not None:
             wrist_position = goal_dict.get('wrist_position', [0.0, 0.0, 0.0])
             x, y, z = wrist_position  # Extract x and y from the position
@@ -131,7 +132,6 @@ class DexTeleopNode(Node):
                 self.get_logger().info(f'Goal dict:\n{pp.pformat(goal_dict)}')
 
             # Extract wrist position
-            # wrist_position = goal_dict['wrist_position']
             gripper_width = goal_dict.get('grip_width', None)
             lower_limit, upper_limit = self.joint_limits['wrist_2_gripper_joint']
             gripper_position = map_within_limits(gripper_width, 0.0, 1.0, lower_limit, upper_limit, 0)
@@ -147,31 +147,14 @@ class DexTeleopNode(Node):
 
             # Compute new yaw from wrist position
             new_yaw = -np.arctan2(abs(y),-x )  # Calculate yaw in radians
-            # new_marker_yaw = np.arctan2(abs(y),x )  # Calculate yaw in radians
-
-            # Combine original roll, pitch with new yaw
-            # new_rpy = [original_rpy[0], original_rpy[1], new_yaw]  # [roll, pitch, new_yaw]
-            # new_rpy = [0.0, -original_rpy[0], new_yaw]  # [roll, pitch, new_yaw]
-            # new_marker_rpy = [original_rpy[1], original_rpy[0], new_marker_yaw]
             new_marker_rpy = [-original_rpy[1], -original_rpy[0], new_yaw]
-            # self.get_logger().info(f'Original RPY: {new_marker_rpy}')
-            # Create a new rotation matrix with updated yaw
-            # new_rotation_matrix = Rotation.from_euler('xyz', new_rpy).as_matrix()
             new_marker_rotation_matrix = Rotation.from_euler('xyz', new_marker_rpy).as_matrix()
-            # rotation_correction = np.array([
-            #     [0, -1, 0],
-            #     [1,  0, 0],
-            #     [0,  0, 1]
-            # ])
 
-            # Apply the correction
-            # corrected_rotation_matrix = new_rotation_matrix @ rotation_correction # Apply the correction
-            # correct_rotation_rpy = Rotation.from_matrix(corrected_rotation_matrix).as_euler('xyz')
             wrist_1_to_gripper = 0.08
             wrist_position
             quaternion = Rotation.from_matrix(new_marker_rotation_matrix).as_quat()  # [x, y, z, w]
-            wrist_position[0] = wrist_position[0] * min(1.0, (3 * 0.36/wrist_position[0]))
-            wrist_position[1] = wrist_position[1] * min(1.0, (3 * 0.36/wrist_position[1]))
+            wrist_position[0] = wrist_position[0] * 3 #min(1.0, (3 * 0.36/wrist_position[0]))
+            wrist_position[1] = wrist_position[1] * 3 #min(1.0, (3 * 0.36/wrist_position[1]))
             wrist_position[2] = wrist_position[2] + wrist_1_to_gripper * math.sin(new_marker_rpy[1])
 
             pose_msg = PoseStamped()
@@ -199,17 +182,7 @@ class DexTeleopNode(Node):
 
             # joint_positions = self.giraffe_chain.inverse_kinematics(physical_wrist_position, physical_wrist_orientation, orientation_mode="Y")
             joint_positions = self.giraffe_chain.inverse_kinematics(physical_wrist_position)
-            # current_configuration = {
-            #     'base_link_shoulder_pan_joint':     joint_positions[0],
-            #     'shoulder_pan_shoulder_lift_joint': joint_positions[1],
-            #     'shoulder_lift_elbow_joint':        joint_positions[2],
-            #     'elbow_wrist_1_joint':              joint_positions[3],
-            #     'wrist_1_wrist_2_joint':            joint_positions[4]
-            # }
 
-            # achieved_position = self.simple_ik.fk(current_configuration, use_urdf=True)
-            # self.get_logger().info(f'wrist_position: {physical_wrist_position}')
-            # self.get_logger().info(f'achieved_position: {achieved_position}')
             if len(joint_positions) > 0:
                 # Map joint_positions to the correct order
                 ordered_positions = [float(x) for x in joint_positions[1:-1]]
@@ -218,12 +191,7 @@ class DexTeleopNode(Node):
                     new_marker_rpy[1] = new_marker_rpy[1] - 3.1415
                 else:
                     new_marker_rpy[1] = new_marker_rpy[1] + 3.1415
-                print(f'position={ordered_positions[-2]}, pitch={new_marker_rpy[1]}')
                 ordered_positions[-2] = ordered_positions[-2] - new_marker_rpy[1]
-                # TODO: Change last ordered position value based on the absolute roll of the marker
-
-
-                # self.get_logger().info(f'ordered_joint_positions: {ordered_positions}')
 
                 # Check if the positions have changed significantly
                 if self.previous_positions and self.positions_similar(ordered_positions, self.previous_positions):
@@ -233,26 +201,26 @@ class DexTeleopNode(Node):
                 # Create a JointTrajectory message
                 trajectory_msg = JointTrajectory()
                 trajectory_msg.header = Header()
-                trajectory_msg.header.stamp.sec = 0  # Match rqt_joint_trajectory_controller
+                trajectory_msg.header.stamp.sec = 0
                 trajectory_msg.header.stamp.nanosec = 0
                 trajectory_msg.joint_names = self.joint_names
 
                 # Create a single trajectory point
                 point = JointTrajectoryPoint()
                 point.positions = ordered_positions
-                point.time_from_start.sec = 1  # Match rqt_joint_trajectory_controller
+                point.time_from_start.sec = 1
                 point.time_from_start.nanosec = 0
                 trajectory_msg.points.append(point)
 
                 gripper_msg = JointTrajectory()
                 gripper_msg.header = Header()
-                gripper_msg.header.stamp.sec = 0  # Match rqt_joint_trajectory_controller
+                gripper_msg.header.stamp.sec = 0
                 gripper_msg.header.stamp.nanosec = 0
                 gripper_msg.joint_names = ['wrist_2_gripper_joint']
 
                 gripper_point = JointTrajectoryPoint()
                 gripper_point.positions = [gripper_position]  # Close the gripper
-                gripper_point.time_from_start.sec = 1  # Match rqt_joint_trajectory_controller
+                gripper_point.time_from_start.sec = 1 
                 gripper_point.time_from_start.nanosec = 0
                 gripper_msg.points.append(gripper_point)
                 # Publish the trajectory
