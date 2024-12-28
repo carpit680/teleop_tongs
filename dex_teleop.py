@@ -17,6 +17,8 @@ import os
 import math
 import time
 from threading import Lock
+from sensor_msgs.msg import JointState
+
 
 def timer(func):
     def wrapper(*args, **kwargs):
@@ -69,7 +71,8 @@ class DexTeleopNode(Node):
         # ROS 2 Publishers
         self.trajectory_publisher = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
         self.gripper_publisher = self.create_publisher(JointTrajectory, '/gripper_controller/joint_trajectory', 10)
-        self.goal_pose_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10) 
+        self.goal_pose_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10)
+        self.joint_command_pub = self.create_publisher(JointState, "/command", 10)
 
         active_links_mask = [False, True, True, True, True, True, False]
         urdf_file_name = 'giraffe.urdf'
@@ -116,7 +119,7 @@ class DexTeleopNode(Node):
         # Smoothing filter
         self.smoothed_positions = None
         self.smoothed_marker_positions = None
-        self.smoothing_alpha = 0.8  # Alpha for exponential moving average
+        self.smoothing_alpha = 0.5  # Alpha for exponential moving average
 
     def marker_callback(self):
         with self.marker_lock:
@@ -171,12 +174,12 @@ class DexTeleopNode(Node):
             gripper_position = map_within_limits(gripper_width, 0.0, 1.0, lower_limit, upper_limit, 0)
 
             original_rpy = Rotation.from_matrix(rotation_matrix).as_euler('xyz')
-            new_yaw = -np.arctan2(abs(y), -x)
+            new_yaw = -np.arctan2(abs(y/8), -x)
             new_marker_rpy = [-original_rpy[1], -original_rpy[0], new_yaw]
 
             wrist_1_to_gripper = 0.08
-            wrist_position[0] = wrist_position[0] * 3
-            wrist_position[1] = wrist_position[1] * 3
+            wrist_position[0] = wrist_position[0] * 1
+            wrist_position[1] = wrist_position[1] * 1
             wrist_position[2] = wrist_position[2] + wrist_1_to_gripper * math.sin(new_marker_rpy[1])
 
             # if len(self.previous_positions) > 0 and self.positions_similar(wrist_position, self.previous_positions, 0.01):
@@ -197,6 +200,7 @@ class DexTeleopNode(Node):
                 self.pose_msg.pose.orientation.w = quaternion[3]
 
                 self.goal_pose_publisher.publish(self.pose_msg)
+                
 
             physical_wrist_position = [
                 wrist_position[1],
@@ -221,9 +225,17 @@ class DexTeleopNode(Node):
 
                 self.gripper_point.positions = [gripper_position]
                 self.gripper_msg.points = [self.gripper_point]
+                joint_state = JointState()
+                joint_state.header.stamp = self.get_clock().now().to_msg()
+                joint_state.name = self.joint_names
+                joint_state.name.append("wrist_2_gripper_joint")
+                joint_state.position = ordered_positions
+                joint_state.position.append(gripper_position)
 
-                self.trajectory_publisher.publish(self.trajectory_msg)
-                self.gripper_publisher.publish(self.gripper_msg)
+                self.joint_command_pub.publish(joint_state)
+
+                # self.trajectory_publisher.publish(self.trajectory_msg)
+                # self.gripper_publisher.publish(self.gripper_msg)
 
                 self.previous_positions = wrist_position
 
