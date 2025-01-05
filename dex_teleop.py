@@ -10,7 +10,6 @@ from scipy.spatial.transform import Rotation
 
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import JointState
 
 import simple_ik as si
 import loop_timer as lt
@@ -57,8 +56,6 @@ class DexTeleopNode(Node):
         self.center_wrist_position = self.simple_ik.fk(self.center_configuration)
         self.goal_from_markers = gt.GoalFromMarkers(dt.teleop_origin, self.center_wrist_position)
 
-        # ROS 2 Publisher
-        self.joint_command_pub = self.create_publisher(JointState, "/command", 10)
 
         active_links_mask = [False, True, True, True, True, True, False]
         urdf_file_name = 'giraffe.urdf'
@@ -181,7 +178,7 @@ class DexTeleopNode(Node):
             rotation_matrix = np.array([x_axis, y_axis, z_axis]).T
 
             if self.print_goal:
-                self.get_logger().info(f'Goal dict:\n{pp.pformat(goal_dict)}')
+                print(f'Goal dict:\n{pp.pformat(goal_dict)}')
 
             gripper_width = goal_dict.get('grip_width', None)
             lower_limit, upper_limit = self.joint_limits['wrist_2_gripper_joint']
