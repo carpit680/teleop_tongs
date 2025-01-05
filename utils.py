@@ -1,9 +1,9 @@
 import platform
 import time
-import datetime, timezone
+import datetime
 
 def capture_timestamp_utc():
-    return datetime.now(timezone.utc)
+    return datetime.datetime.now()
 
 def busy_wait(seconds):
     if platform.system() == "Darwin":

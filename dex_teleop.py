@@ -1,34 +1,23 @@
-import rclpy
-from rclpy.node import Node
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
-import webcam_teleop_interface as wt
-import simple_ik as si
-import goal_from_teleop as gt
-import dex_teleop_parameters as dt
-import pprint as pp
-import loop_timer as lt
-from geometry_msgs.msg import PoseStamped
-import numpy as np
-from scipy.spatial.transform import Rotation
-from ikpy.chain import Chain
-import urchin as urdf_loader
 import os
 import math
-import time
+import numpy as np
+import pprint as pp
 from threading import Lock
+from ikpy.chain import Chain
+import urchin as urdf_loader
+from scipy.spatial.transform import Rotation
+
+import rclpy
+from rclpy.node import Node
 from sensor_msgs.msg import JointState
 
+import simple_ik as si
+import loop_timer as lt
+import goal_from_teleop as gt
+import dex_teleop_parameters as dt
+import webcam_teleop_interface as wt
 
-def timer(func):
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        execution_time_ms = (end_time - start_time) * 1000  # Convert to milliseconds
-        print(f"Execution time of {func.__name__}: {execution_time_ms:.2f} milliseconds")
-        return result
-    return wrapper
 
 def load_urdf(file_name):
     if not os.path.isfile(file_name):
@@ -68,10 +57,7 @@ class DexTeleopNode(Node):
         self.center_wrist_position = self.simple_ik.fk(self.center_configuration)
         self.goal_from_markers = gt.GoalFromMarkers(dt.teleop_origin, self.center_wrist_position)
 
-        # ROS 2 Publishers
-        self.trajectory_publisher = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
-        self.gripper_publisher = self.create_publisher(JointTrajectory, '/gripper_controller/joint_trajectory', 10)
-        self.goal_pose_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10)
+        # ROS 2 Publisher
         self.joint_command_pub = self.create_publisher(JointState, "/command", 10)
 
         active_links_mask = [False, True, True, True, True, True, False]
@@ -100,16 +86,6 @@ class DexTeleopNode(Node):
             'elbow_wrist_1_joint',
             'wrist_1_wrist_2_joint'
         ]
-        self.pose_msg = PoseStamped()
-        self.pose_msg.header.frame_id = "world"
-        self.trajectory_msg = JointTrajectory()
-        self.trajectory_msg.joint_names = self.joint_names
-        self.point = JointTrajectoryPoint()
-        self.point.time_from_start.sec = 1
-        self.gripper_msg = JointTrajectory()
-        self.gripper_msg.joint_names = ['wrist_2_gripper_joint']
-        self.gripper_point = JointTrajectoryPoint()
-        self.gripper_point.time_from_start.sec = 1
 
         # State variables
         self.previous_positions = []  # Track last sent positions to avoid duplicate commands
@@ -118,7 +94,6 @@ class DexTeleopNode(Node):
 
         # Smoothing filter
         self.smoothed_positions = None
-        self.smoothed_marker_positions = None
         self.smoothing_alpha = 0.5  # Alpha for exponential moving average
 
     def marker_callback(self):
@@ -134,16 +109,6 @@ class DexTeleopNode(Node):
                 (1 - self.smoothing_alpha) * self.smoothed_positions
             )
         return self.smoothed_positions.tolist()
-
-    def apply_smoothing_on_marker(self, new_positions):
-        if self.smoothed_marker_positions is None:
-            self.smoothed_marker_positions = np.array(new_positions)
-        else:
-            self.smoothed_marker_positions = (
-                self.smoothing_alpha * np.array(new_positions) +
-                (1 - self.smoothing_alpha) * self.smoothed_marker_positions
-            )
-        return self.smoothed_marker_positions.tolist()
 
     def teleop_callback(self):
         self.loop_timer.start_of_iteration()
@@ -167,7 +132,7 @@ class DexTeleopNode(Node):
             rotation_matrix = np.array([x_axis, y_axis, z_axis]).T
 
             if self.print_goal:
-                self.get_logger().info(f'Goal dict:\n{pp.pformat(goal_dict)}')
+                self.get_logger().info(f'Goal dict:\n{pp.pformat(goal_dict)}')k
 
             gripper_width = goal_dict.get('grip_width', None)
             lower_limit, upper_limit = self.joint_limits['wrist_2_gripper_joint']
@@ -181,26 +146,6 @@ class DexTeleopNode(Node):
             wrist_position[0] = wrist_position[0] * 1
             wrist_position[1] = wrist_position[1] * 1
             wrist_position[2] = wrist_position[2] + wrist_1_to_gripper * math.sin(new_marker_rpy[1])
-
-            # if len(self.previous_positions) > 0 and self.positions_similar(wrist_position, self.previous_positions, 0.01):
-            #     self.get_logger().debug('No significant change in positions; skipping trajectory publish.')
-            #     return
-            if self.publish_goal_pose_marker:
-                new_marker_rotation_matrix = Rotation.from_euler('xyz', new_marker_rpy).as_matrix()
-                quaternion = Rotation.from_matrix(new_marker_rotation_matrix).as_quat()
-
-                self.pose_msg.header.stamp = self.get_clock().now().to_msg()
-                smoothened_wrist_position = self.apply_smoothing_on_marker(wrist_position)
-                self.pose_msg.pose.position.x = smoothened_wrist_position[0]
-                self.pose_msg.pose.position.y = smoothened_wrist_position[1]
-                self.pose_msg.pose.position.z = smoothened_wrist_position[2]
-                self.pose_msg.pose.orientation.x = quaternion[0]
-                self.pose_msg.pose.orientation.y = quaternion[1]
-                self.pose_msg.pose.orientation.z = quaternion[2]
-                self.pose_msg.pose.orientation.w = quaternion[3]
-
-                self.goal_pose_publisher.publish(self.pose_msg)
-                
 
             physical_wrist_position = [
                 wrist_position[1],
@@ -218,13 +163,6 @@ class DexTeleopNode(Node):
 
                 ordered_positions = self.apply_smoothing(ordered_positions)
 
-                
-
-                self.point.positions = ordered_positions
-                self.trajectory_msg.points = [self.point]
-
-                self.gripper_point.positions = [gripper_position]
-                self.gripper_msg.points = [self.gripper_point]
                 joint_state = JointState()
                 joint_state.header.stamp = self.get_clock().now().to_msg()
                 joint_state.name = self.joint_names
@@ -233,11 +171,6 @@ class DexTeleopNode(Node):
                 joint_state.position.append(gripper_position)
 
                 self.joint_command_pub.publish(joint_state)
-
-                # self.trajectory_publisher.publish(self.trajectory_msg)
-                # self.gripper_publisher.publish(self.gripper_msg)
-
-                self.previous_positions = wrist_position
 
         self.loop_timer.end_of_iteration()
 

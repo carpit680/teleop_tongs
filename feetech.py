@@ -131,10 +131,9 @@ def convert_degrees_to_steps(degrees: float | np.ndarray, models: str | list[str
     steps = steps.astype(int)
     return steps
 
-
 def convert_to_bytes(value, bytes, mock=False):
-    if mock:
-        return value
+    # if mock:
+    #     return value
 
     import scservo_sdk as scs
 
@@ -304,10 +303,10 @@ class FeetechMotorsBus:
                 f"FeetechMotorsBus({self.port}) is already connected. Do not call `motors_bus.connect()` twice."
             )
 
-        if self.mock:
-            import tests.mock_scservo_sdk as scs
-        else:
-            import scservo_sdk as scs
+        # if self.mock:
+        #     import tests.mock_scservo_sdk as scs
+        # else:
+        import scservo_sdk as scs
 
         self.port_handler = scs.PortHandler(self.port)
         self.packet_handler = scs.PacketHandler(PROTOCOL_VERSION)
@@ -328,10 +327,10 @@ class FeetechMotorsBus:
         self.port_handler.setPacketTimeoutMillis(TIMEOUT_MS)
 
     def reconnect(self):
-        if self.mock:
-            import tests.mock_scservo_sdk as scs
-        else:
-            import scservo_sdk as scs
+        # if self.mock:
+        #     import tests.mock_scservo_sdk as scs
+        # else:
+        import scservo_sdk as scs
 
         self.port_handler = scs.PortHandler(self.port)
         self.packet_handler = scs.PacketHandler(PROTOCOL_VERSION)
@@ -655,10 +654,10 @@ class FeetechMotorsBus:
         return values
 
     def read_with_motor_ids(self, motor_models, motor_ids, data_name, num_retry=NUM_READ_RETRY):
-        if self.mock:
-            import tests.mock_scservo_sdk as scs
-        else:
-            import scservo_sdk as scs
+        # if self.mock:
+        #     import tests.mock_scservo_sdk as scs
+        # else:
+        import scservo_sdk as scs
 
         return_list = True
         if not isinstance(motor_ids, list):
@@ -693,10 +692,10 @@ class FeetechMotorsBus:
             return values[0]
 
     def read(self, data_name, motor_names: str | list[str] | None = None):
-        if self.mock:
-            import tests.mock_scservo_sdk as scs
-        else:
-            import scservo_sdk as scs
+        # if self.mock:
+        #     import tests.mock_scservo_sdk as scs
+        # else:
+        import scservo_sdk as scs
 
         if not self.is_connected:
             raise RobotDeviceNotConnectedError(
@@ -769,10 +768,10 @@ class FeetechMotorsBus:
         return values
 
     def write_with_motor_ids(self, motor_models, motor_ids, data_name, values, num_retry=NUM_WRITE_RETRY):
-        if self.mock:
-            import tests.mock_scservo_sdk as scs
-        else:
-            import scservo_sdk as scs
+        # if self.mock:
+        #     import tests.mock_scservo_sdk as scs
+        # else:
+        import scservo_sdk as scs
 
         if not isinstance(motor_ids, list):
             motor_ids = [motor_ids]
@@ -797,6 +796,12 @@ class FeetechMotorsBus:
                 f"{self.packet_handler.getTxRxResult(comm)}"
             )
 
+    def steps_to_radians(self, steps: int, model: str) -> float:
+        """Convert motor steps to radians."""
+        resolution = MODEL_RESOLUTION[model]
+        radians = steps * (2 * np.pi / resolution)
+        return radians
+
     def write(self, data_name, values: int | float | np.ndarray, motor_names: str | list[str] | None = None):
         if not self.is_connected:
             raise RobotDeviceNotConnectedError(
@@ -805,10 +810,10 @@ class FeetechMotorsBus:
 
         start_time = time.perf_counter()
 
-        if self.mock:
-            import tests.mock_scservo_sdk as scs
-        else:
-            import scservo_sdk as scs
+        # if self.mock:
+        #     import tests.mock_scservo_sdk as scs
+        # else:
+        import scservo_sdk as scs
 
         if motor_names is None:
             motor_names = self.motor_names
