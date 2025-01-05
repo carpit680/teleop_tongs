@@ -17,7 +17,7 @@ import loop_timer as lt
 import goal_from_teleop as gt
 import dex_teleop_parameters as dt
 import webcam_teleop_interface as wt
-
+from feetech import FeetechMotorsBus
 
 def load_urdf(file_name):
     if not os.path.isfile(file_name):
@@ -86,6 +86,26 @@ class DexTeleopNode(Node):
             'elbow_wrist_1_joint',
             'wrist_1_wrist_2_joint'
         ]
+        self.motors_bus = FeetechMotorsBus(
+            port="/dev/ttyACM0",
+            motors={
+                "base_link_shoulder_pan_joint": (1, "sts3215"),
+                "shoulder_pan_shoulder_lift_joint": (2, "sts3215"),
+                "shoulder_lift_elbow_joint": (3, "sts3215"),
+                "elbow_wrist_1_joint": (4, "sts3215"),
+                "wrist_1_wrist_2_joint": (5, "sts3215"),
+                "wrist_2_gripper_joint": (6, "sts3215"),
+            },
+        )
+        self.motor_order = [
+            "base_link_shoulder_pan_joint",
+            "shoulder_pan_shoulder_lift_joint",
+            "shoulder_lift_elbow_joint",
+            "elbow_wrist_1_joint",
+            "wrist_1_wrist_2_joint",
+            "wrist_2_gripper_joint",
+        ]
+        self.motors_bus.connect()
 
         # State variables
         self.previous_positions = []  # Track last sent positions to avoid duplicate commands
@@ -95,6 +115,35 @@ class DexTeleopNode(Node):
         # Smoothing filter
         self.smoothed_positions = None
         self.smoothing_alpha = 0.5  # Alpha for exponential moving average
+
+        # Homing offsets
+        self.offsets = [3.223, 3.043, 2.979, 3.152, 3.1415, 4.9532]
+
+        self.set_motor_acceleration(5, 50)
+
+    def set_motor_acceleration(self, acceleration: int, gripper_acceleration: int):
+        """Set acceleration for all motors."""
+        try:
+            motor_names = self.motors_bus.motor_names
+            non_gripper_motors = motor_names[:-1]
+            accelerations = [acceleration] * len(non_gripper_motors)
+            self.motors_bus.write("Acceleration", accelerations, non_gripper_motors)
+            gripper = motor_names[-1]
+            self.motors_bus.write("Acceleration", gripper_acceleration, gripper)
+            self.get_logger().info(f"Set acceleration to {acceleration} for {motor_names[:-1]}.")
+            self.get_logger().info(f"Set acceleration to {gripper_acceleration} for {gripper}.")
+        except Exception as e:
+            self.get_logger().warn(f"Failed to set acceleration for motors: {e}")
+
+    def radians_to_steps(self, radians: float) -> int:
+        """
+        Converts radians to motor steps based on the model resolution.
+        Assumes a full rotation (-pi to +pi radians) maps to the full step range.
+        """
+        resolution = 4096
+        degrees = np.degrees(radians)  # Convert radians to degrees
+        steps = int(degrees / 360.0 * resolution)  # Map degrees to steps
+        return steps
 
     def marker_callback(self):
         with self.marker_lock:
@@ -132,7 +181,7 @@ class DexTeleopNode(Node):
             rotation_matrix = np.array([x_axis, y_axis, z_axis]).T
 
             if self.print_goal:
-                self.get_logger().info(f'Goal dict:\n{pp.pformat(goal_dict)}')k
+                self.get_logger().info(f'Goal dict:\n{pp.pformat(goal_dict)}')
 
             gripper_width = goal_dict.get('grip_width', None)
             lower_limit, upper_limit = self.joint_limits['wrist_2_gripper_joint']
@@ -162,15 +211,24 @@ class DexTeleopNode(Node):
                 ordered_positions[-2] -= new_marker_rpy[1]
 
                 ordered_positions = self.apply_smoothing(ordered_positions)
+                ordered_positions.append(gripper_position)
 
-                joint_state = JointState()
-                joint_state.header.stamp = self.get_clock().now().to_msg()
-                joint_state.name = self.joint_names
-                joint_state.name.append("wrist_2_gripper_joint")
-                joint_state.position = ordered_positions
-                joint_state.position.append(gripper_position)
+                positions = []
 
-                self.joint_command_pub.publish(joint_state)
+                homing_offsets = [-2082, -1992, -1949, -2023, -2046, -3225]
+                for position, offset in zip(ordered_positions, homing_offsets):
+                    # Convert position to steps
+                    radians = position
+                    step_value = self.radians_to_steps(-radians) - offset
+                    positions.append(step_value)
+
+                # Write all positions and velocities
+                self.motors_bus.write("Goal_Position", np.array(positions), self.motor_order)
+                positions = self.motors_bus.read("Present_Position", self.motor_order)
+                position_radians = self.motors_bus.steps_to_radians(positions, self.motors_bus.motors[self.motor_order[0]][1])
+                feedback = []
+                for position, offset in zip(position_radians, self.offsets):
+                    feedback.append(-position + offset)
 
         self.loop_timer.end_of_iteration()
 
