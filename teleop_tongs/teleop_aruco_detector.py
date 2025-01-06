@@ -122,6 +122,10 @@ class ArucoMarkerCollection:
         #self.aruco_detection_parameters.cornerRefinementWinSize = 2
         self.collection = {}
         self.detector = aruco.ArucoDetector(self.aruco_dict, self.aruco_detection_parameters)
+
+        self.detector_params = self.detector.getDetectorParameters()
+        self.detector_params.useAruco3Detection = True
+        self.detector.setDetectorParameters(self.detector_params)
         self.frame_number = 0
 
     def __iter__(self):
