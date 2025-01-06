@@ -1,12 +1,10 @@
 import numpy as np
-import webcam_teleop_interface as wt
-import simple_ik as si
-import argparse
+import teleop_tongs.webcam_teleop_interface as wt
+import teleop_tongs.simple_ik as si
 import pprint as pp
-import loop_timer as lt
-import dex_teleop_parameters as dt
+import teleop_tongs.loop_timer as lt
+import teleop_tongs.dex_teleop_parameters as dt
 from multiprocessing import shared_memory
-import os
 
 
 class GoalFromMarkers:

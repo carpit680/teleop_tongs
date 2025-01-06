@@ -4,13 +4,12 @@ import time
 import glob
 import time
 import cv2.aruco as aruco
-import webcam_calibration_aruco_board as ab
-import numpy as np
+import teleop_tongs.webcam_calibration_aruco_board as ab
 from datetime import datetime
 import yaml
-import webcam as wc
+import teleop_tongs.webcam as wc
 import pprint as pp
-from image_processing_helpers import fit_image_to_screen
+from teleop_tongs.image_processing_helpers import fit_image_to_screen
 
 aruco_dict = ab.aruco_dict
 aruco_board = ab.board

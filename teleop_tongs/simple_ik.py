@@ -25,9 +25,9 @@ def nan_in_configuration(configuration):
     return False
 
 class SimpleIK:
-    def __init__(self):
+    def __init__(self, urdf_path):
         # URDF file and joint names
-        self.urdf_file_name = './giraffe.urdf'
+        self.urdf_file_name = urdf_path
         self.urdf = load_urdf(self.urdf_file_name)
 
         self.joint_names = [

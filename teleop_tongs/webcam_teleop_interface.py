@@ -1,13 +1,14 @@
+import os
 import numpy as np
 import math
 from scipy.spatial.transform import Rotation
 import cv2
-import teleop_aruco_detector as ad
+import teleop_tongs.teleop_aruco_detector as ad
 import yaml
 from yaml.loader import SafeLoader
 import time
-import webcam as wc
-import dex_teleop_parameters as dt
+import teleop_tongs.webcam as wc
+import teleop_tongs.dex_teleop_parameters as dt
 
 
 def pixel_from_3d(xyz, camera_info):
@@ -104,16 +105,17 @@ def draw_directions(image, teleop_origin, camera_info):
     return output_image
 
 class WebcamArucoDetector:
-    def __init__(self, tongs_prefix, visualize_detections=False):
+    def __init__(self, tongs_prefix, visualize_detections=False, cam_calib_path=None):
 
-        self.webcam = wc.Webcam(fps=15, image_width=640, image_height=480, use_calibration=True)
+        self.webcam = wc.Webcam(fps=15, image_width=640, image_height=480, use_calibration=True, cam_calib_path=cam_calib_path)
         # self.webcam = wc.Webcam(fps=15, image_width=1920, image_height=1080, use_calibration=True)
         
         self.first_frame = True
         self.visualize_detections = visualize_detections
 
         self.marker_info = {}
-        aruco_marker_info_file_name = './teleop_aruco_marker_info_' + dt.tongs_to_use + '.yaml'
+        current_dir = os.path.dirname(__file__)
+        aruco_marker_info_file_name = os.path.join(current_dir, './teleop_aruco_marker_info_' + dt.tongs_to_use + '.yaml')
         with open(aruco_marker_info_file_name) as f:
             self.marker_info = yaml.load(f, Loader=SafeLoader)
 

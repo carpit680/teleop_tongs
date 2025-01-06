@@ -50,7 +50,8 @@ class Webcam:
                  image_height=480,
                  use_calibration=False,
                  use_second_camera=False,
-                 show_images=False):
+                 show_images=False,
+                 cam_calib_path=None):
         
         self.show_images = show_images
         self.use_calibration = use_calibration
@@ -83,8 +84,8 @@ class Webcam:
         self.color_camera_info = {}
         
         if use_calibration:
-            calibration_directory = get_calibration_directory(self.camera_name, image_width, image_height)
-            file_name_pattern = calibration_directory + 'camera_calibration_results_*.yaml'
+            # calibration_directory = get_calibration_directory(self.camera_name, image_width, image_height)
+            file_name_pattern = cam_calib_path
             file_names = glob.glob(file_name_pattern)
             file_names.sort()
             if len(file_names) > 0:

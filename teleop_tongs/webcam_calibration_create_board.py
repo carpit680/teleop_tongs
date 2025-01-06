@@ -1,6 +1,5 @@
 import cv2
-import cv2.aruco as aruco
-import webcam_calibration_aruco_board as ab
+import teleop_tongs.webcam_calibration_aruco_board as ab
 
 aruco_dict = ab.aruco_dict
 board = ab.board

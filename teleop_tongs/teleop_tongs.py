@@ -8,10 +8,10 @@ from ikpy.chain import Chain
 import urchin as urdf_loader
 from scipy.spatial.transform import Rotation
 
-import simple_ik as si
-import goal_from_teleop as gt
-import dex_teleop_parameters as dt
-import webcam_teleop_interface as wt
+import teleop_tongs.simple_ik as si
+import teleop_tongs.goal_from_teleop as gt
+import teleop_tongs.dex_teleop_parameters as dt
+import teleop_tongs.webcam_teleop_interface as wt
 
 
 def load_urdf(file_name):
@@ -46,27 +46,28 @@ def map_within_limits(position, lowest_position, highest_position, lower_limit, 
 
 
 class DexTeleop:
-    def __init__(self):
+    def __init__(self, urdf_path='giraffe.urdf', cam_calib_path=None, degree=True):
         # Initialize configurations and objects
         self.max_goal_wrist_position_z = dt.goal_max_position_z
         self.min_goal_wrist_position_z = dt.goal_min_position_z
 
         self.center_configuration = dt.get_center_configuration()
         self.starting_configuration = dt.get_starting_configuration()
-        self.simple_ik = si.SimpleIK()
+        self.simple_ik = si.SimpleIK(urdf_path)
 
         self.webcam_aruco_detector = wt.WebcamArucoDetector(
             tongs_prefix='right',
-            visualize_detections=True
+            visualize_detections=False,
+            cam_calib_path=cam_calib_path
         )
-
+        self.in_degree = degree
         # Center wrist position (used for teleoperation origin)
         self.center_wrist_position = self.simple_ik.fk(self.center_configuration)
         self.goal_from_markers = gt.GoalFromMarkers(dt.teleop_origin, self.center_wrist_position)
 
         # IKPy chain setup
         active_links_mask = [False, True, True, True, True, True, False]
-        urdf_file_name = 'giraffe.urdf'
+        urdf_file_name = urdf_path
         self.urdf = load_urdf(urdf_file_name)
         self.giraffe_chain = Chain.from_urdf_file(
             active_links_mask=active_links_mask,
@@ -162,6 +163,9 @@ class DexTeleop:
         # Smooth the joint positions
         ordered_positions = self.apply_smoothing(ordered_positions)
         ordered_positions.append(gripper_position)
+        if self.in_degree:
+            deg_positions = [x * 180 / 3.1415 for x in ordered_positions]
+            return deg_positions
         return ordered_positions
 
 
