@@ -7,12 +7,23 @@ from threading import Lock
 from ikpy.chain import Chain
 import urchin as urdf_loader
 from scipy.spatial.transform import Rotation
+import time 
 
 import teleop_tongs.simple_ik as si
 import teleop_tongs.goal_from_teleop as gt
 import teleop_tongs.dex_teleop_parameters as dt
 import teleop_tongs.webcam_teleop_interface as wt
 
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time_ms = (end_time - start_time) * 1000  # Convert to milliseconds
+        print(f"Execution time of {func.__name__}: {execution_time_ms:.2f} milliseconds")
+        return result
+    return wrapper
 
 def load_urdf(file_name):
     if not os.path.isfile(file_name):
@@ -67,31 +78,21 @@ class DexTeleop:
 
         # IKPy chain setup
         active_links_mask = [False, True, True, True, True, True, False]
-        urdf_file_name = urdf_path
-        self.urdf = load_urdf(urdf_file_name)
+        self.urdf = load_urdf(urdf_path)
         self.giraffe_chain = Chain.from_urdf_file(
             active_links_mask=active_links_mask,
-            urdf_file=urdf_file_name
+            urdf_file=urdf_path
         )
         self.joint_limits = get_joint_limits(self.urdf)
         print('SimpleIK: Joint limits:', self.joint_limits)
 
         # State variables
-        self.previous_positions = []  # Track last sent positions to avoid duplicate commands
         self.markers = None
         self.marker_lock = Lock()
 
         # Smoothing filter
         self.smoothed_positions = None
         self.smoothing_alpha = 0.5  # Alpha for exponential moving average
-
-        # Print toggles
-        self.print_timing = False
-        self.print_goal = False
-        self.publish_goal_pose_marker = True
-
-        # Threading stop signal
-        self.stop_event = threading.Event()
 
     def apply_smoothing(self, new_positions):
         if self.smoothed_positions is None:
@@ -117,10 +118,10 @@ class DexTeleop:
         x_axis = goal_dict.get('gripper_x_axis', [1.0, 0.0, 0.0])
         y_axis = goal_dict.get('gripper_y_axis', [0.0, 1.0, 0.0])
         z_axis = goal_dict.get('gripper_z_axis', [0.0, 0.0, 1.0])
-        wrist_position = goal_dict.get('wrist_position', [0.0, 0.0, 0.0])
 
-        rotation_matrix = np.array([x_axis, y_axis, z_axis]).T
+        wrist_position = goal_dict.get('wrist_position', [0.0, 0.0, 0.0])
         x, y, z = wrist_position
+
 
         # Enforce Z-bound for teleop
         if not (self.min_goal_wrist_position_z <= z <= self.max_goal_wrist_position_z):
@@ -132,6 +133,7 @@ class DexTeleop:
         gripper_position = map_within_limits(gripper_width, 0.0, 1.0, lower_limit, upper_limit, 0)
 
         # Compute orientation (roll/pitch/yaw)
+        rotation_matrix = np.array([x_axis, y_axis, z_axis]).T
         original_rpy = Rotation.from_matrix(rotation_matrix).as_euler('xyz')
         new_yaw = -np.arctan2(abs(y / 8), -x)
         new_marker_rpy = [-original_rpy[1], -original_rpy[0], new_yaw]
