@@ -12,8 +12,6 @@ The system could be adapted to use other interfaces that can provide a five to s
 
 ## Motivation
 
-![](./gifs/play_with_dog.gif)
-
 HuggingFace has done some amazing work with the help of the community in developing [lerobot](https://github.com/huggingface/lerobot) with its plug-and-play Imitation Learning pipeline. At the time of development one can setup a Koch V1.1, Standard Open ARM 100 or Aloha bimanual setup with leader and follower arms to teleoperate and collect episodes to train the model with.
 
 I initially wanted to repplicate their setup and build on top of that but later figured, why not make this pipeline even more accessible and so I developed my own version of low-cost robotic manipulator and this teleop_tongs to create a data collection setup at most half the cost of other available setups.
