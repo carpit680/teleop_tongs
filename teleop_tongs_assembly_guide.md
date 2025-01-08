@@ -24,17 +24,17 @@ This first version of these instructions is minimal. We hope to improve them in 
 
 [Logitech C930e 1080P HD Video Webcam on Amazon](https://www.amazon.com/dp/B00CRJWW2G)  
 <div style="text-align: center;">
-    <img src="./images/webcam.jpg" width="40%">
+    <img src="./images/webcam.jpg" width="20%">
 </div>
 
 [Sensyne 10” Desk Ring Light with Stand on Amazon](https://www.amazon.com/dp/B0B5Q41S75)  
 <div style="text-align: center;">
-    <img src="./images/ring_light.jpg" width="40%">
+    <img src="./images/ring_light.jpg" width="20%">
 </div>
 
 [Loctite Super Glue Gel Control from Amazon](https://www.amazon.com/dp/B0006HUJCQ)  
 <div style="text-align: center;">
-    <img src="./images/superglue.jpg" width="40%">
+    <img src="./images/superglue.jpg" width="20%">
 </div>
 
 **USB extension cables**  
@@ -78,7 +78,7 @@ For example, I used the following printer settings on a chromium-based browser.
 Scale (%): Actual Size  
 Quality: 1200 dpi  
 <div style="text-align: center;">
-    <img src="./images/print.png" width="40%">
+    <img src="./images/print.png" width="20%">
 </div>
 
 ## Photos of Right-Hand Tongs
