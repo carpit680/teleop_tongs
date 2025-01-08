@@ -21,7 +21,7 @@
 # http://www.linuxfromscratch.org/lfs/view/6.2/chapter07/symlinks.html
 #
 
-# This adds a Mi USB Webcam HD to the plugdev group, which
+# This adds a Mi USB Webcam to the plugdev group, which
 # enables the camera to be reset with out sudo. Resetting the camera
 # each time is a workaround for low frame rates and incorrect camera
 # settings after the first time dexterous teleop is run.

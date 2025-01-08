@@ -1,12 +1,10 @@
-# __Teleop Tongs for robotic manipulator__
+# __Teleop Tongs for [Giraffe](https://github.com/carpit680/giraffe) robotic manipulator__
 
-| Robot Teleoperation                            |
-| ---------------------------------------------- |
-| ![](./gifs/single_arm_dishes_short_318x360.gif) |
+![](./gifs/single_arm_dishes_short_318x360.gif)
 
 This repository provides code for dexterous teleoperation of [Giraffe](https://github.com/carpit680/giraffe), a low-cost 5DoF robotic manipulator.
 
-Teleop Tongs support performing efficient multijoint movement with Giraffe or other similar robots.
+Teleop Tongs support performing efficient multijoint movement with Giraffe and customised to work with any 5-7 DoF manipulators.
 
 The human operator uses modified kitchen tongs or 3D printed tongs with attached ArUco markers to control the pose of the end effector. A webcam looking up from a stand placed on the ground observes the tongs to estimate the tongs' position, orientation, and grip width. A ring light around the webcam ensures that the ArUco markers can be detected during fast motions by reducing motion blur.
 
@@ -14,15 +12,11 @@ The system could be adapted to use other interfaces that can provide a five to s
 
 ## Motivation
 
-| Single Robot Teleoperation                     |
-| ---------------------------------------------- |
-|          ![](./gifs/play_with_dog.gif)          |
+![](./gifs/play_with_dog.gif)
 
-Hello Robot provided code to teleoperate the first version of Stretch (the Stretch RE1) using a gamepad and a web interface. Both types of teleoperation have improved over the years with work from the Stretch community and Hello Robot. Gamepad teleoperation is simple and portable. Web-based teleoperation can be used over great distances and has been made accessible for people with disabilities. A notable disadvantage of these approaches is that they tend to favor slow single joint motions with a single arm.
+HuggingFace has done some amazing work with the help of the community in developing [lerobot](https://github.com/huggingface/lerobot) with its plug-and-play Imitation Learning pipeline. At the time of development one can setup a Koch V1.1, Standard Open ARM 100 or Aloha bimanual setup with leader and follower arms to teleoperate and collect episodes to train the model with.
 
-HuggingFace has done some amazing work with the help of the community in developing lerobot with its plug-and-play Imitation Learning pipeline. At the time of development one can setup a Koch V1.1, Standard Open ARM 100 or Aloha bimanual setup with leader and follower arms to teleoperate and collect episodes to train the model with.
-
-I initially wanted to repplicate their setup and build on top of that but later figured, why not make this pipeline even more accessible and so I developed my own version of low-cost robotic manipulator and this teleop_tongs to create a data collection setup at half the cost of other available setups.
+I initially wanted to repplicate their setup and build on top of that but later figured, why not make this pipeline even more accessible and so I developed my own version of low-cost robotic manipulator and this teleop_tongs to create a data collection setup at most half the cost of other available setups.
 
 ## Setting Up Teleop dex
 
@@ -41,10 +35,11 @@ You will need a camera, a ring light, and optionally a stand as shown in the fol
 For a single robot, you will need Teleop Tongs like those shown in the following two photos.
 
 <div style="text-align: center;">
-    <img src="./images/teleop_tongs_held_open.jpeg" width="40%"> <img src="./images/teleop_tongs_held_closed.jpeg" width="40%">
+    <img src="./images/teleop_tongs_held_open.jpeg" width="40%">
+    <img src="./images/teleop_tongs_held_closed.jpeg" width="40%">
 </div>
 
-### Run the Installation Script
+### Run the Installation Scripts
 
 Clone this github repository.
 
@@ -57,6 +52,9 @@ Then run the following installation script found in the repository's root direct
 ```bash
 ./install_dex_teleop.sh
 ```
+> :warning: **Warning**  
+> The device ID and Vendor ID used in the `99-teleop-tongs-camera.rules`, required below is specific to the camera I used. 
+> If you are using a different camera, you will need to change the device ID and Vendor ID in this file.
 
 The installation script sets up a udev rule for a Mi USB Webcam HD, so that the camera can be reset each time you run dexterous teleoperation. This is a workaround to avoid low frame rates and errors in the camera settings.
 
@@ -66,15 +64,12 @@ You also need to install some python dependencies:
 
 ```bash
 pip install -r requirements.txt
+pip install -e . # To install as a python package in editable mode
 ```
 
 ### Generate Specialized URDFs
 
-To run Teleop Tongs, you need to generate specialized URDF files. Teleop Tongs uses forward kinematic (FK) and inverse kinematic (IK) models of the robot. These models use specialized URDFs generated from the calibrated URDF on your robot.
-
-```bash
-python3 prepare_specialized_urdfs.py
-```
+To run Teleop Tongs, you need to generate specialized URDF files. Teleop Tongs uses forward kinematic (FK) and inverse kinematic (IK) models of the robot. These models use specialized URDFs generated from the calibrated URDF on your robot. Use the `giraffe.urdf` file provided as an example of how the URDF should look like.
 
 ### Set Up the Camera, Ring Light and Stand
 
@@ -82,15 +77,26 @@ As shown in the photo above, the camera stand should be placed on the ground, an
 
 The camera should be plugged into your computer using a USB extension cable. The ring light should not be plugged carelessly as it requires too much power - it can either be plugged into a powered USB port, or externally.
 
-When using the camera, the top of the camera should be pointed away from you. With respect to the robot, the top of the camera points in the direction of arm extended forward from its base, and the lens of the camera looks up.
+When using the camera, the bottom of the camera should be pointed away from you. With respect to the robot, the bottom of the camera points in the direction of arm extended forward from its base, and the lens of the camera looks up.
 
 ### Calibrate the Webcam
 
 After setting up your camera, you need to calibrate it.
 
+> :warning: **Warning**
+> The calibration scripts contain parameters for camera name and resolution. Customize these parameters if necessary.
+
+> :memo: **Note:**
+> If use face permission issues with the camera or any other usb device, execute the following commands:
+> ```bash
+> sudo usermod -a -G dialout $USER
+> newgrp dialout
+> ```
+
 First, generate a calibration board using the following command:
 
 ```bash
+cd teleop_tongs
 python3 webcam_calibration_create_board.py
 ```
 
@@ -104,7 +110,7 @@ Print this image out without scaling it. The resulting printout should match the
 
 Mount the resulting printout on a flat surface that you can move around the camera to capture calibration images __with the ring light turned on__.
 
-Use the following command and your calibration pattern to collect calibration images for your Logitech C930e webcam. The entire calibration board should be visible and not too far away, or else the calibration images can lead to errors.
+Use the following command and your calibration pattern to collect calibration images for your Mi USB Webcam. The entire calibration board should be visible and not too far away, or else the calibration images can lead to errors.
 
 ```bash
 python3 webcam_calibration_collect_images.py
@@ -126,54 +132,67 @@ Processing the images will generate a YAML calibration file similar to the follo
 
 ```bash
 ./webcam_calibration_images/<camera name>/<camera resolution>/camera_calibration_results_20231211211703.yaml
+
 ```
 
 ### Test the Camera
 
-To make sure that your camera detects the ArUco markers on your tongs, __turn on the ring light__ and run the following code.
+To make sure that your camera detects the ArUco markers on your tongs, __turn on the ring light__ and run the following code __from the root directory__.
 
 ```bash
-python3 webcam_teleop_interface.py
+python3 teleop_example.py
 ```
 
 You should see images from the camera with green boxes drawn around detected ArUco markers.
 
-## Running Teleop Tongs
+## Running Teleop Tongs with lerobot
 
-After you've gotten everything setup, you can try out Teleop Tongs. Make sure to start with slow motions, to test your system, gain experience, and warm up.
+After you have everything set up, you can import this python package and run Teleop Tongs on your own robot or with [modified lerobot repository](https://github.com/carpit680/lerobot).
 
-### Start with Slow Motions
+* Follow the instructions from lerobot repository to setup your robot.
+* Update camera_calibration_results.yaml file with your camera calibration results obtained above.
+* Update giraffe.urdf file with your robot's URDF.
+* Here we treat giraffe as a variation fo so100 robot and will use the configs of so100.
+* Teleoperate your robot to test Teleop Tongs setup.
+    ```bash
+    python lerobot/scripts/control_robot.py teleoperate \
+    --robot-path lerobot/configs/robot/so100.yaml \
+    --cam-calib-path lerobot/configs/camera_calibration_results.yaml \
+    --urdf-path lerobot/configs/<robot-urdf-file> \
+    --robot-overrides \
+        '~cameras'
+    ```
 
-After setting everything up, run the following command without any command line arguments. __This will result in the robot moving at the slowest available speed while you ensure that everything is working properly and get used to using the teleoperation system.__
+## ROS2 Integration
 
-```bash
-python3 dex_teleop.py
-```
+If you want to try it out with ROS2, you can also run Teleop Tongs with simulation or real robot with Giraffe.
 
-### When You're Ready, Try Fast Motions
+Follow the instructions from [Giraffe](https://github.com/carpit680/giraffe) repository to setup your robot.
 
-Once you are confident that you have the system correctly configured and have learned to use it at the slowest speed, you can run the following command to try it at the fastest available speed. __The robot will move fast, so be very careful!__
+* Clone this ros2 branch of Teleop Tongs repository if you want to use ros2_control or raw_ros2 if you want to use topics.
+    ```bash
+    git clone https://github.com/carpit680/teleop_tongs.git -b ros2 # for ros2_control based communication to giraffe_driver with simulation or robot hardware.
+    # OR
+    git clone https://github.com/carpit680/teleop_tongs.git -b raw_ros2 # for topics based direct communication to giraffe_driver with only robot hardware.
+    ```
+* Run Giraffe simulation or real robot depending on branch you chose above.
+* Run `python3 dex_teleop.py` to start Teleop Tongs.
 
-```bash
-python3 dex_teleop.py --fast
-```
 
-### Advanced: Multiprocessing with Shared Memory
+## Running Teleop Tongs with Giraffe Hardware(no lerobot or ROS2, just for fun)
 
-To achieve better performance, you can run Teleop Tongs using two processes that communicate via shared memory.
+After you've gotten everything setup, you can try out Teleop Tongs inside simulation with Giraffe. Make sure to start with slow motions, to test your system, gain experience, and warm up.
 
-First, run the interface process in a terminal. This process observes ArUco markers with the webcam to create goals for the robot's gripper.
-
-```bash
-python3 goal_from_teleop.py --multiprocessing
-```
-
-Second, run the robot process in a different terminal. This process receives gripper goals and attempts to achieve them by controlling the robot.
-
-```bash
-python3 gripper_to_goal.py --multiprocessing --fast
-```
+* Follow the instructions from Giraffe repository to setup your robot hardware.
+* Use the `raw` branch of Teleop Tongs repository if you want to write to robot hardware directly.
+    ```bash
+    git clone https://github.com/carpit680/teleop_tongs.git -b raw
+    ```
+* Run Teleop Tongs with `python3 dex_teleop.py`.
 
 ## Acknowledgment
 
-Blaine Matulevich has been extremely helpful throughout the development of Teleop Tongs, including testing, providing feedback, discussing the system, and contributing ideas. The entire Hello Robot team provided essential support throughout, including helping with early versions of Stretch 3, which the entire company worked on intensely.
+**Original acknowledgment**
+“*Blaine Matulevich has been extremely helpful throughout the development of Teleop Tongs, including testing, providing feedback, discussing the system, and contributing ideas. The entire Hello Robot team provided essential support throughout, including helping with early versions of Stretch 3, which the entire company worked on intensely.*”
+
+The detailed instructions from Charlie Kemp and the original code from [Dex Teleop for Stretch](https://github.com/hello-robot/stretch_dex_teleop) by Hello Robot Inc. were great starting points for developing Teleop Tongs for general-purpose low-cost manipulators.

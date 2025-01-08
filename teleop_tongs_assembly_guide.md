@@ -96,7 +96,7 @@ You can use these photos to better see how the right-hand tongs should be built.
 
 # Acknowledgment
 
-**Original acknowledgement**
+**Original acknowledgment**
 “*Blaine Matulevich has been extremely helpful throughout the development of Dex Teleop, including testing, providing feedback, discussing the system, and contributing ideas. The entire Hello Robot team provided essential support throughout, including helping me use early versions of Stretch 3, which the entire company worked on intensely.*”
 
 The detailed instructions from Charlie Kemp and the original code from [Dex Teleop for Stretch](https://github.com/hello-robot/stretch_dex_teleop) by Hello Robot Inc. were great starting points for developing Teleop Tongs for general-purpose low-cost manipulators.
