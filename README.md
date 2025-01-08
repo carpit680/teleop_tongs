@@ -35,7 +35,7 @@ You can 3D print the components required for the Teleop Tongs setup along with t
 You will need a camera, a ring light, and optionally a stand as shown in the following photo.
 
 <div style="text-align: center;">
-    <img src="./images/camera_ring_light_and_stand.jpg" width="30%" alt="camera, ring light, and stand setup">
+    <img src="./images/camera_ring_light_and_stand.jpeg" width="30%" alt="camera, ring light, and stand setup">
 </div>
 
 For a single robot, you will need Teleop Tongs like those shown in the following two photos.
