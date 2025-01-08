@@ -30,7 +30,7 @@ You should start by cloning this repository. All of the commands below should be
 
 ### Build Your Interface
 
-You can 3D print the components required for the Teleop Tongs setup along with the feducial markers by following the __[Teleop Tongs Assembly Guide](https://docs.google.com/document/d/1RCJbuiAU41ctlkckxPVuluC3laB2XDHw1zR1Jke-rWY/edit?usp=sharing)__.
+You can 3D print the components required for the Teleop Tongs setup along with the feducial markers by following the __[Teleop Tongs Assembly Guide](./teleop_tongs_assembly_guide.md)__.
 
 You will need a camera, a ring light, and optionally a stand as shown in the following photo.
 
