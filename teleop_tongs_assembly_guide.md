@@ -77,7 +77,9 @@ For example, I used the following printer settings on a chromium-based browser.
 
 Scale (%): Actual Size  
 Quality: 1200 dpi  
-![][image9]
+<div style="text-align: center;">
+    <img src="./images/print.png" width="40%">
+</div>
 
 ## Photos of Right-Hand Tongs
 
