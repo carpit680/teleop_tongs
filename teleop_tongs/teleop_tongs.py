@@ -57,7 +57,7 @@ def map_within_limits(position, lowest_position, highest_position, lower_limit, 
 
 
 class DexTeleop:
-    def __init__(self, urdf_path='giraffe.urdf', cam_calib_path=None, degree=True):
+    def __init__(self, urdf_path='giraffe.urdf', cam_calib_path=None, degree=True, visualize_detections=False):
         # Initialize configurations and objects
         self.max_goal_wrist_position_z = dt.goal_max_position_z
         self.min_goal_wrist_position_z = dt.goal_min_position_z
@@ -68,7 +68,7 @@ class DexTeleop:
 
         self.webcam_aruco_detector = wt.WebcamArucoDetector(
             tongs_prefix='right',
-            visualize_detections=False,
+            visualize_detections=visualize_detections,
             cam_calib_path=cam_calib_path
         )
         self.in_degree = degree
@@ -92,7 +92,7 @@ class DexTeleop:
 
         # Smoothing filter
         self.smoothed_positions = None
-        self.smoothing_alpha = 0.5  # Alpha for exponential moving average
+        self.smoothing_alpha = 0.2  # Alpha for exponential moving average
 
     def apply_smoothing(self, new_positions):
         if self.smoothed_positions is None:
@@ -163,13 +163,26 @@ class DexTeleop:
         ordered_positions[-2] -= new_marker_rpy[1]
 
         # Smooth the joint positions
-        ordered_positions = self.apply_smoothing(ordered_positions)
         ordered_positions.append(gripper_position)
+        ordered_positions = self.apply_smoothing(ordered_positions)
         if self.in_degree:
-            deg_positions = [x * 180 / 3.1415 for x in ordered_positions]
+            deg_positions = [x * 180 / 3.1415 for x in ordered_positions[:-1]]
+            deg_positions.append(ordered_positions[-1])
             return deg_positions
         return ordered_positions
 
+if __name__ == '__main__':
+    dt = DexTeleop(urdf_path='giraffe.urdf', cam_calib_path='camera_calibration_results.yaml', degree=True, visualize_detections=True)
+
+    while True:
+        try:
+            goal_pose = dt.get_goal_pose()
+            if goal_pose is not None:
+                print('goal_pose =', goal_pose)
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            print(e)
 
 ##############################################################
 ## NOTES

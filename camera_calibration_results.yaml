@@ -1,0 +1,26 @@
+calibration_date: 2024-12-14 05:27:19.224645
+camera_matrix:
+- - 685.9452336894074
+  - 0.0
+  - 326.82579607555004
+- - 0.0
+  - 689.4442338944809
+  - 246.28704496832918
+- - 0.0
+  - 0.0
+  - 1.0
+camera_name: Mi USB Webcam HD
+distortion_coefficients:
+- - -0.051257929628905234
+  - -0.36163849483403665
+  - 0.0021450296254212358
+  - -0.005065999232705032
+  - 1.5280870393468164
+image_size:
+- 480
+- 640
+- 3
+number_of_corresponding_points_used: 925
+number_of_images_processed: 60
+number_of_images_used: 48
+projection_error: 0.16841019550332786
