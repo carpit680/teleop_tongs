@@ -32,16 +32,16 @@ You should start by cloning this repository. All of the commands below should be
 
 You can 3D print the components required for the Teleop Tongs setup along with the feducial markers by following the __[Teleop Tongs Assembly Guide](https://docs.google.com/document/d/1RCJbuiAU41ctlkckxPVuluC3laB2XDHw1zR1Jke-rWY/edit?usp=sharing)__.
 
-You will need a camera, a ring light, and a stand as shown in the following photo.
+You will need a camera, a ring light, and optionally a stand as shown in the following photo.
 
 <div style="text-align: center;">
     <img src="./images/camera_ring_light_and_stand.jpg" width="30%" alt="camera, ring light, and stand setup">
 </div>
 
-For a single robot, you will need right-hand tongs like those shown in the following two photos.
+For a single robot, you will need Teleop Tongs like those shown in the following two photos.
 
 <div style="text-align: center;">
-    <img src="./images/right_tongs_held_and_open.jpg" width="40%"> <img src="./images/right_tongs_held_and_closed.jpg" width="40%">
+    <img src="./images/teleop_tongs_held_open.jpeg" width="40%"> <img src="./images/teleop_tongs_held_closed.jpeg" width="40%">
 </div>
 
 ### Run the Installation Script
