@@ -222,13 +222,22 @@ class DexTeleop:
 
         # Smoothing filter
         self.smoothed_positions = None
-        self.smoothing_alpha = 0.5  # Alpha for exponential moving average
+        self.smoothing_alpha = 0.4  # Alpha for exponential moving average
 
         # Homing offsets
         self.offsets = [3.223, 3.043, 2.979, 3.152, 3.1415, 4.9532]
 
         # Motor parameters
-        self.set_motor_acceleration(5, 50)
+        self.motors_bus.write("Mode", 0, self.motor_order)
+
+        self.set_motor_acceleration(acceleration=40, gripper_acceleration=254)
+
+        self.motors_bus.write("P_Coefficient", 4, self.motor_order)
+        # Set I_Coefficient and D_Coefficient to default value 0 and 32
+        self.motors_bus.write("I_Coefficient", 0, self.motor_order)
+        self.motors_bus.write("D_Coefficient", 16, self.motor_order)
+
+        self.motors_bus.write("Lock", 0, self.motor_order)
 
         # Print toggles
         self.print_timing = False
@@ -416,12 +425,12 @@ class DexTeleop:
         # Create threads
         marker_thread = threading.Thread(target=self.run_marker_loop, daemon=True)
         teleop_thread = threading.Thread(target=self.run_teleop_loop, daemon=True)
-        camera_thread = threading.Thread(target=self.run_camera_loop, daemon=True)
+        # camera_thread = threading.Thread(target=self.run_camera_loop, daemon=True)
 
         # Start threads
         marker_thread.start()
         teleop_thread.start()
-        camera_thread.start()
+        # camera_thread.start()
 
         print("Threads started. Press Ctrl-C to stop.")
         try:
@@ -434,7 +443,7 @@ class DexTeleop:
             # Wait for threads to finish
             marker_thread.join()
             teleop_thread.join()
-            camera_thread.join()
+            # camera_thread.join()
             print("All threads stopped. Exiting.")
 
 
