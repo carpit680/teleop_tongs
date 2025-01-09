@@ -22,7 +22,7 @@ You should start by cloning this repository. All of the commands below should be
 
 ### Build Your Interface
 
-You can 3D print the components required for the Teleop Tongs setup along with the feducial markers by following the __[Teleop Tongs Assembly Guide](./teleop_tongs_assembly_guide.md)__.
+You can 3D print the components required for the Teleop Tongs set up along with the fiducial markers by following the __[Teleop Tongs Assembly Guide](./teleop_tongs_assembly_guide.md)__.
 
 You will need a camera, a ring light, and optionally a stand as shown in the following photo.
 
@@ -186,7 +186,7 @@ Follow the instructions from [Giraffe](https://github.com/carpit680/giraffe) rep
 After you've gotten everything setup, you can try out Teleop Tongs inside simulation with Giraffe. Make sure to start with slow motions, to test your system, gain experience, and warm up.
 
 * Follow the instructions from the Giraffe repository to set up your robot hardware.
-* Use the `raw` branch ofthe  Teleop Tongs repository if you want to write to robot hardware directly.
+* Use the `raw` branch of the Teleop Tongs repository if you want to write to robot hardware directly.
     ```bash
     git clone https://github.com/carpit680/teleop_tongs.git -b raw
     ```
