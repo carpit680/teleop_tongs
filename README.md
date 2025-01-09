@@ -4,7 +4,7 @@
 
 This repository provides code for dexterous teleoperation of [Giraffe](https://github.com/carpit680/giraffe), a low-cost 5DoF robotic manipulator.
 
-Teleop Tongs support performing efficient multijoint movement with Giraffe and customised to work with any 5-7 DoF manipulators.
+Teleop Tongs support performing efficient multijoint movement with Giraffe built on top of [Dex Teleop](https://github.com/hello-robot/stretch_dex_teleop) (for the [Stretch 3](https://hello-robot.com/stretch-3-product) mobile manipulator by [Hello Robot](https://hello-robot.com/)) and customized to work with any 5-7 DoF manipulators.
 
 The human operator uses modified kitchen tongs or 3D printed tongs with attached ArUco markers to control the pose of the end effector. A webcam looking up from a stand placed on the ground observes the tongs to estimate the tongs' position, orientation, and grip width. A ring light around the webcam ensures that the ArUco markers can be detected during fast motions by reducing motion blur.
 
