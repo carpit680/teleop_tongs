@@ -147,6 +147,10 @@ You should see images from the camera with green boxes drawn around detected ArU
 
 After you have everything set up, you can import this python package and run Teleop Tongs on your own robot or with [modified lerobot repository](https://github.com/carpit680/lerobot).
 
+* Clone lerobot repository and checkout the branch `user/carpit680/2024_1_5_teleop_tongs`:
+    ```bash
+    git clone https://github.com/carpit680/lerobot.git -b user/carpit680/2024_1_5_teleop_tongs
+    ```
 * Follow the instructions from lerobot repository to setup your robot.
 * Update camera_calibration_results.yaml file with your camera calibration results obtained above.
 * Update giraffe.urdf file with your robot's URDF.
