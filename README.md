@@ -85,7 +85,7 @@ After setting up your camera, you need to calibrate it.
 > The calibration scripts contain parameters for camera name and resolution. Customize these parameters if necessary.
 
 > :memo: **Note:**
-> If use face permission issues with the camera or any other usb device, execute the following commands:
+> If you face permission issues with the camera or any other usb device, execute the following commands:
 > ```bash
 > sudo usermod -a -G dialout $USER
 > newgrp dialout
