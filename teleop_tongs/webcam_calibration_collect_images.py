@@ -2,8 +2,8 @@
 import cv2
 import time
 from pathlib import Path
-import teleop_tongs.webcam as wc
-from teleop_tongs.image_processing_helpers import fit_image_to_screen
+import webcam as wc
+from image_processing_helpers import fit_image_to_screen
 
 
 camera_name = 'Mi USB Webcam HD'

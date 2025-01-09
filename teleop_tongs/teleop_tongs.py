@@ -1,13 +1,11 @@
 
 import os
+import time 
 import math
 import numpy as np
-import threading
-from threading import Lock
 from ikpy.chain import Chain
 import urchin as urdf_loader
 from scipy.spatial.transform import Rotation
-import time 
 
 import teleop_tongs.simple_ik as si
 import teleop_tongs.goal_from_teleop as gt
@@ -88,7 +86,6 @@ class DexTeleop:
 
         # State variables
         self.markers = None
-        self.marker_lock = Lock()
 
         # Smoothing filter
         self.smoothed_positions = None
