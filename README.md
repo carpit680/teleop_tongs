@@ -1,6 +1,6 @@
 # __Teleop Tongs for [Giraffe](https://github.com/carpit680/giraffe) robotic manipulator__
 
-![](./gifs/single_arm_dishes_short_318x360.gif)
+![](./gif/demo.gif)
 
 This repository provides code for dexterous teleoperation of [Giraffe](https://github.com/carpit680/giraffe), a low-cost 5DoF robotic manipulator.
 
