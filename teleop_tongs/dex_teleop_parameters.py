@@ -112,9 +112,9 @@ robot_allowed_to_move = True
 # the lift range are outside of this range.
 
 # Minimum distance from the tongs to the camera in meters
-min_dist_from_camera_to_tongs = 0.4 #0.5
+min_dist_from_camera_to_tongs = 0.6 #0.5
 # Maximum distance from the tongs to the camera in meters
-max_dist_from_camera_to_tongs = 1.0 #1.0
+max_dist_from_camera_to_tongs = 1.2 #1.0
 
 # Maximum height range of tongs
 max_tongs_height_range = max_dist_from_camera_to_tongs - min_dist_from_camera_to_tongs
