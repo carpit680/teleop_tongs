@@ -126,7 +126,8 @@ class DexTeleop:
 
         # Gripper width -> joint limit mapping
         gripper_width = goal_dict.get('grip_width', None)
-        lower_limit, upper_limit = self.joint_limits['wrist_2_gripper_joint']
+        # lower_limit, upper_limit = self.joint_limits['wrist_2_gripper_joint']
+        lower_limit, upper_limit = (0, 21)
         gripper_position = map_within_limits(gripper_width, 0.0, 1.0, lower_limit, upper_limit, 0)
 
         # Compute orientation (roll/pitch/yaw)
@@ -163,7 +164,7 @@ class DexTeleop:
         ordered_positions.append(gripper_position)
         ordered_positions = self.apply_smoothing(ordered_positions)
         if self.in_degree:
-            deg_positions = [x * 180 / 3.1415 for x in ordered_positions[:-1]]
+            deg_positions = list(np.rad2deg(ordered_positions[:-1]))
             deg_positions.append(ordered_positions[-1])
             return deg_positions
         return ordered_positions
