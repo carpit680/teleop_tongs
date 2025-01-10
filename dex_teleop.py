@@ -230,12 +230,15 @@ class DexTeleop:
         # Motor parameters
         self.motors_bus.write("Mode", 0, self.motor_order)
 
-        self.set_motor_acceleration(acceleration=40, gripper_acceleration=254)
+        self.motors_bus.write("Acceleration", 40, self.motor_order[:-1])
+        self.motors_bus.write("P_Coefficient", 8, self.motor_order[:-1])
+        self.motors_bus.write("I_Coefficient", 0, self.motor_order[:-1])
+        self.motors_bus.write("D_Coefficient", 16, self.motor_order[:-1])
 
-        self.motors_bus.write("P_Coefficient", 4, self.motor_order)
-        # Set I_Coefficient and D_Coefficient to default value 0 and 32
-        self.motors_bus.write("I_Coefficient", 0, self.motor_order)
-        self.motors_bus.write("D_Coefficient", 16, self.motor_order)
+        self.motors_bus.write("Acceleration", 254, self.motor_order[-1])
+        self.motors_bus.write("P_Coefficient", 32, self.motor_order[-1])
+        self.motors_bus.write("I_Coefficient", 0, self.motor_order[-1])
+        self.motors_bus.write("D_Coefficient", 50, self.motor_order[-1])
 
         self.motors_bus.write("Lock", 0, self.motor_order)
 
@@ -246,20 +249,6 @@ class DexTeleop:
 
         # Threading stop signal
         self.stop_event = threading.Event()
-
-    def set_motor_acceleration(self, acceleration: int, gripper_acceleration: int):
-        """Set acceleration for all motors."""
-        try:
-            motor_names = self.motors_bus.motor_names
-            non_gripper_motors = motor_names[:-1]
-            accelerations = [acceleration] * len(non_gripper_motors)
-            self.motors_bus.write("Acceleration", accelerations, non_gripper_motors)
-            gripper = motor_names[-1]
-            self.motors_bus.write("Acceleration", gripper_acceleration, gripper)
-            print(f"Set acceleration to {acceleration} for {motor_names[:-1]}.")
-            print(f"Set acceleration to {gripper_acceleration} for {gripper}.")
-        except Exception as e:
-            print(f"Failed to set acceleration for motors: {e}")
 
     def radians_to_steps(self, radians: float) -> int:
         """
