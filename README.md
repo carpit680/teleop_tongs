@@ -16,7 +16,7 @@ HuggingFace has done some amazing work with the community's help in developing [
 
 I initially wanted to replicate their setup and build on top of that, but later, I figured, why not make this pipeline even more accessible? So, I developed my own version of a low-cost robotic manipulator, and this teleop_tongs to create a data collection setup at most half the cost of other available setups.
 
-## Setting Up Teleop dex
+## Setting Up Teleop Tongs
 
 You should start by cloning this repository. All of the commands below should be run from the command line in the root directory of the repository on your robot's computer. 
 
