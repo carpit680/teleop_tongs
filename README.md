@@ -2,7 +2,7 @@
 
 ![](./gif/demo.gif)
 
-This repository provides code for dexterous teleoperation of [Giraffe](https://github.com/carpit680/giraffe), a low-cost 5DoF robotic manipulator.
+This repository provides code for dexterous teleoperation of Giraffe, a low-cost 5DoF robotic manipulator.
 
 Teleop Tongs support performing efficient multijoint movement with Giraffe built on top of [Dex Teleop](https://github.com/hello-robot/stretch_dex_teleop) (for the [Stretch 3](https://hello-robot.com/stretch-3-product) mobile manipulator by [Hello Robot](https://hello-robot.com/)) and customized to work with any 5-7 DoF manipulators.
 
